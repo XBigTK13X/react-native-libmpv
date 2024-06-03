@@ -8,11 +8,14 @@ import com.facebook.react.uimanager.ViewManager;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 public class LibmpvPackage implements ReactPackage {
   @Override
   public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-    return Collections.emptyList();
+    ArrayList<NativeModule> modules = new ArrayList<NativeModule>();
+    modules.add(new LibmpvModule(reactContext));
+    return modules;
   }
 
   @Override

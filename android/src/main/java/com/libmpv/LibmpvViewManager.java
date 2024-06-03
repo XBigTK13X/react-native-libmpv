@@ -1,16 +1,17 @@
 package com.libmpv;
 
 import android.graphics.Color;
-import android.view.View;
+import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import dev.jdtech.mpv.MPVLib;
 
-public class LibmpvViewManager extends SimpleViewManager<View> {
-  public static final String REACT_CLASS = "LibmpvView";
+public class LibmpvViewManager extends SimpleViewManager<SurfaceView> {
+  public static final String REACT_CLASS = "LibmpvSurfaceView";
 
   @Override
   @NonNull
@@ -20,12 +21,13 @@ public class LibmpvViewManager extends SimpleViewManager<View> {
 
   @Override
   @NonNull
-  public View createViewInstance(ThemedReactContext reactContext) {
-    return new View(reactContext);
+  public SurfaceView createViewInstance(ThemedReactContext reactContext) {
+    return new SurfaceView(reactContext);
   }
 
-  @ReactProp(name = "color")
-  public void setColor(View view, String color) {
-    view.setBackgroundColor(Color.parseColor(color));
+  @ReactProp(name="playUrl")
+  public void register(SurfaceView view, String playUrl){
+    LibmpvWrapper.getInstance().defaultSetup(view);
+    LibmpvWrapper.getInstance().play(playUrl);
   }
 }

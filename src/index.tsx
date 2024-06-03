@@ -1,5 +1,6 @@
 import {
   requireNativeComponent,
+  NativeModules,
   UIManager,
   Platform,
   type ViewStyle,
@@ -16,11 +17,24 @@ type LibmpvProps = {
   style: ViewStyle;
 };
 
-const ComponentName = 'LibmpvView';
+const ComponentName = 'LibmpvSurfaceView';
 
-export const LibmpvView =
+export const SurfaceView =
   UIManager.getViewManagerConfig(ComponentName) != null
     ? requireNativeComponent<LibmpvProps>(ComponentName)
     : () => {
+      throw new Error(LINKING_ERROR);
+    };
+
+export const Libmpv = NativeModules.Libmpv
+  ? NativeModules.Libmpv
+  : new Proxy(
+    {},
+    {
+      get() {
         throw new Error(LINKING_ERROR);
-      };
+      },
+    }
+  );
+
+export default Libmpv
