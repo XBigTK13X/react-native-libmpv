@@ -6,12 +6,16 @@ import Libmpv, { SurfaceView } from 'react-native-libmpv';
 export default function App() {
   const surfaceRef = React.useRef(null);
   const [playing, setPlaying] = React.useState(false)
-  const testingURL = "http://192.168.1.20:9064/media/movies/testing/Ocean's Eleven (2001)/Ocean's Eleven (2001) WEBDL-480p.mkv"
+  const mkvUrl = "http://192.168.1.20:9064/media/movies/testing/Ocean's Eleven (2001)/Ocean's Eleven (2001) WEBDL-480p.mkv"
+  const frigateUrl = "http://192.168.1.20:8000/api/streamable/direct?streamable_id=68"
+  const hdHomeRunUrl = "http://192.168.1.20:8000/api/streamable/direct?streamable_id=1"
+  const hdHomeRunUrlTrans = "http://192.168.1.20:8000/api/streamable/transcode?streamable_id=1"
+  const iptvUrl = "http://192.168.1.20:8000/api/streamable/direct?streamable_id=124"
 
   return (
     <View style={styles.container}>
       <Text>Video player below</Text>
-      <SurfaceView style={styles.videoPlayer} playUrl={testingURL}></SurfaceView>
+      <SurfaceView style={styles.videoPlayer} playUrl={iptvUrl}></SurfaceView>
       <Text>Video player above</Text>
     </View>
   );
@@ -29,7 +33,10 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   videoPlayer: {
-    width: 300,
-    height: 300
+    position: "absolute",
+    left: 0,
+    bottom: 0,
+    right: 0,
+    top: 0
   }
 });

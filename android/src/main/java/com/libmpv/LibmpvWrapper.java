@@ -106,6 +106,7 @@ public class LibmpvWrapper {
     MPVLib.init();
 
     MPVLib.attachSurface(surfaceView.getHolder().getSurface());
+
     MPVLib.setOptionString("force-window", "yes");
     MPVLib.setOptionString("vo", "gpu-next");
   }
