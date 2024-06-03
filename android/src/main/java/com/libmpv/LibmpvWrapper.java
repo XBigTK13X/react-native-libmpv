@@ -73,6 +73,7 @@ public class LibmpvWrapper {
   }
 
   public void defaultSetup(SurfaceView surfaceView){
+    System.out.println("Default setup");
     MPVLib.create(_applicationContext);
 
     MPVLib.setOptionString("tls-verify","no");

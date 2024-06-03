@@ -10,7 +10,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import dev.jdtech.mpv.MPVLib;
 
-public class LibmpvViewManager extends SimpleViewManager<SurfaceView> {
+public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
   public static final String REACT_CLASS = "LibmpvSurfaceView";
 
   @Override
