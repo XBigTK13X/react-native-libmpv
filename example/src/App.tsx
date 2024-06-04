@@ -12,10 +12,14 @@ export default function App() {
   const hdHomeRunUrlTrans = "http://192.168.1.20:8000/api/streamable/transcode?streamable_id=1"
   const iptvUrl = "http://192.168.1.20:8000/api/streamable/direct?streamable_id=124"
 
+  function onLibmpvEvent(libmpvEvent) {
+    console.log({ libmpvEvent })
+  }
+
   return (
     <View style={styles.container}>
       <Text>Video player below</Text>
-      <LibmpvVideo playUrl={frigateUrl}></LibmpvVideo>
+      <LibmpvVideo playUrl={frigateUrl} onLibmpvEvent={onLibmpvEvent}></LibmpvVideo>
       <Text>Video player above</Text>
     </View>
   );

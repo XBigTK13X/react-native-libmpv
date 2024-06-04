@@ -22,6 +22,7 @@ type LibmpvProps = {
 };
 
 const ComponentName = 'LibmpvSurfaceView';
+// A way to prevent the "already registered" hot reload error
 //const Canvas = global['CanvasComponent'] || (global['CanvasComponent'] = requireNativeComponent('Canvas'));
 export const SurfaceView =
   UIManager.getViewManagerConfig(ComponentName) != null
@@ -41,16 +42,15 @@ export const Libmpv = NativeModules.Libmpv
     }
   );
 
+// Example of another video player in react-native
 // https://github.com/razorRun/react-native-vlc-media-player/blob/master/VLCPlayer.js
 
 export function LibmpvVideo(props) {
   const [libmpvListener, setListener] = React.useState<EmitterSubscription>();
   React.useEffect(() => {
-    if (!libmpvListener) {
+    if (!libmpvListener && props.onLibmpvEvent) {
       const eventEmitter = new NativeEventEmitter(NativeModules.ToastExample);
-      let eventListener = eventEmitter.addListener('libmpv', libmpvEvent => {
-        console.log({ libmpvEvent })
-      });
+      let eventListener = eventEmitter.addListener('libmpv', props.onLibmpvEvent);
       setListener(eventListener);
       return () => {
         eventListener.remove();
@@ -63,16 +63,6 @@ export function LibmpvVideo(props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
-  },
   videoPlayer: {
     position: "absolute",
     left: 0,
