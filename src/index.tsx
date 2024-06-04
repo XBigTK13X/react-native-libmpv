@@ -16,9 +16,9 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-type LibmpvProps = {
+type NativeProps = {
   playUrl: String,
-  style: ViewStyle;
+  style: ViewStyle
 };
 
 const ComponentName = 'LibmpvSurfaceView';
@@ -26,7 +26,7 @@ const ComponentName = 'LibmpvSurfaceView';
 //const Canvas = global['CanvasComponent'] || (global['CanvasComponent'] = requireNativeComponent('Canvas'));
 export const SurfaceView =
   UIManager.getViewManagerConfig(ComponentName) != null
-    ? requireNativeComponent<LibmpvProps>(ComponentName)
+    ? requireNativeComponent<NativeProps>(ComponentName)
     : () => {
       throw new Error(LINKING_ERROR);
     };
@@ -45,12 +45,28 @@ export const Libmpv = NativeModules.Libmpv
 // Example of another video player in react-native
 // https://github.com/razorRun/react-native-vlc-media-player/blob/master/VLCPlayer.js
 
-export function LibmpvVideo(props) {
+type LibmpvVideoProps = {
+  playUrl: string,
+  onLibmpvEvent: (libmpvEvent: object) => void
+}
+
+export function LibmpvVideo(props: LibmpvVideoProps) {
   const [libmpvListener, setListener] = React.useState<EmitterSubscription>();
   React.useEffect(() => {
     if (!libmpvListener && props.onLibmpvEvent) {
       const eventEmitter = new NativeEventEmitter(NativeModules.ToastExample);
-      let eventListener = eventEmitter.addListener('libmpv', props.onLibmpvEvent);
+      let eventListener = eventEmitter.addListener('libmpv', (libmpvEvent) => {
+        if (libmpvEvent.eventId) {
+          libmpvEvent.value = parseInt(libmpvEvent.eventId, 10)
+        }
+        if (libmpvEvent.kind === 'long' || libmpvEvent.kind === 'double') {
+          libmpvEvent.value = Number(libmpvEvent.value)
+        }
+        if (libmpvEvent.kind === 'boolean') {
+          libmpvEvent.value = libmpvEvent.value === 'true'
+        }
+        return props.onLibmpvEvent(libmpvEvent)
+      });
       setListener(eventListener);
       return () => {
         eventListener.remove();
