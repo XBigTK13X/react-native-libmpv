@@ -22,8 +22,13 @@ public class LibmpvWrapper {
   public void setContext(Context applicationContext){
     _applicationContext = applicationContext;
   }
+
   public void create(){
     MPVLib.create(_applicationContext);
+  }
+
+  public void addEventObserver(MPVLib.EventObserver observer){
+    MPVLib.addObserver(observer);
   }
 
   public void setOptionString(String option, String setting){
@@ -73,7 +78,6 @@ public class LibmpvWrapper {
   }
 
   public void defaultSetup(SurfaceView surfaceView){
-    System.out.println("Default setup");
     MPVLib.create(_applicationContext);
 
     MPVLib.setOptionString("tls-verify","no");

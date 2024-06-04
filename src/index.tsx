@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   requireNativeComponent,
   NativeModules,
@@ -36,5 +37,21 @@ export const Libmpv = NativeModules.Libmpv
       },
     }
   );
+
+// https://github.com/razorRun/react-native-vlc-media-player/blob/master/VLCPlayer.js
+
+export class LibmpvView extends React.Component {
+  constructor(props, context) {
+    super(props, context)
+    this._libmpvEvent = this._libmpvEvent.bind(this);
+  }
+  _libmpvEvent(nativeEvent) {
+    console.log(nativeEvent)
+  }
+
+  render() {
+    return <SurfaceView playUrl={this.props.playUrl} />
+  }
+}
 
 export default Libmpv

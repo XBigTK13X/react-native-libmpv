@@ -15,7 +15,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text>Video player below</Text>
-      <SurfaceView style={styles.videoPlayer} playUrl={iptvUrl}></SurfaceView>
+      <SurfaceView style={styles.videoPlayer} playUrl={hdHomeRunUrlTrans}></SurfaceView>
       <Text>Video player above</Text>
     </View>
   );
