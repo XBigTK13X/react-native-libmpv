@@ -18,9 +18,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Video player below</Text>
       <LibmpvVideo playUrl={frigateUrl} onLibmpvEvent={onLibmpvEvent}></LibmpvVideo>
-      <Text>Video player above</Text>
     </View>
   );
 }
