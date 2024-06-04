@@ -6,6 +6,8 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.content.Context;
 
+//https://github.com/jarnedemeulemeester/findroid/blob/main/player/video/src/main/java/dev/jdtech/jellyfin/mpv/MPVPlayer.kt
+
 public class LibmpvWrapper {
   private static LibmpvWrapper __instance;
   public static LibmpvWrapper getInstance(){
@@ -29,6 +31,14 @@ public class LibmpvWrapper {
 
   public void addEventObserver(MPVLib.EventObserver observer){
     MPVLib.addObserver(observer);
+    MPVLib.observeProperty("track-list", MPVLib.MPV_FORMAT_STRING);
+      MPVLib.observeProperty("paused-for-cache", MPVLib.MPV_FORMAT_FLAG);
+      MPVLib.observeProperty("eof-reached", MPVLib.MPV_FORMAT_FLAG);
+      MPVLib.observeProperty("seekable", MPVLib.MPV_FORMAT_FLAG);
+      MPVLib.observeProperty("time-pos", MPVLib.MPV_FORMAT_INT64);
+      MPVLib.observeProperty("duration", MPVLib.MPV_FORMAT_INT64);
+      MPVLib.observeProperty("demuxer-cache-time", MPVLib.MPV_FORMAT_INT64);
+      MPVLib.observeProperty("speed", MPVLib.MPV_FORMAT_DOUBLE);
   }
 
   public void setOptionString(String option, String setting){

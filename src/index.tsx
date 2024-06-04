@@ -5,7 +5,10 @@ import {
   UIManager,
   Platform,
   type ViewStyle,
+  StyleSheet
 } from 'react-native';
+
+import { NativeEventEmitter, type EmitterSubscription } from 'react-native';
 
 const LINKING_ERROR =
   `The package 'react-native-libmpv' doesn't seem to be linked. Make sure: \n\n` +
@@ -14,12 +17,12 @@ const LINKING_ERROR =
   '- You are not using Expo Go\n';
 
 type LibmpvProps = {
-  color: string;
+  playUrl: String,
   style: ViewStyle;
 };
 
 const ComponentName = 'LibmpvSurfaceView';
-
+//const Canvas = global['CanvasComponent'] || (global['CanvasComponent'] = requireNativeComponent('Canvas'));
 export const SurfaceView =
   UIManager.getViewManagerConfig(ComponentName) != null
     ? requireNativeComponent<LibmpvProps>(ComponentName)
@@ -40,18 +43,43 @@ export const Libmpv = NativeModules.Libmpv
 
 // https://github.com/razorRun/react-native-vlc-media-player/blob/master/VLCPlayer.js
 
-export class LibmpvView extends React.Component {
-  constructor(props, context) {
-    super(props, context)
-    this._libmpvEvent = this._libmpvEvent.bind(this);
-  }
-  _libmpvEvent(nativeEvent) {
-    console.log(nativeEvent)
-  }
+export function LibmpvVideo(props) {
+  const [libmpvListener, setListener] = React.useState<EmitterSubscription>();
+  React.useEffect(() => {
+    if (!libmpvListener) {
+      const eventEmitter = new NativeEventEmitter(NativeModules.ToastExample);
+      let eventListener = eventEmitter.addListener('libmpv', libmpvEvent => {
+        console.log({ libmpvEvent })
+      });
+      setListener(eventListener);
+      return () => {
+        eventListener.remove();
+      };
+    }
+    return
+  }, []);
 
-  render() {
-    return <SurfaceView playUrl={this.props.playUrl} />
-  }
+  return <SurfaceView style={styles.videoPlayer} playUrl={props.playUrl} />
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  box: {
+    width: 60,
+    height: 60,
+    marginVertical: 20,
+  },
+  videoPlayer: {
+    position: "absolute",
+    left: 0,
+    bottom: 0,
+    right: 0,
+    top: 0
+  }
+});
 
 export default Libmpv

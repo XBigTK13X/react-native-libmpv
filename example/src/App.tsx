@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-import Libmpv, { SurfaceView } from 'react-native-libmpv';
+import { LibmpvVideo } from 'react-native-libmpv';
 
 export default function App() {
   const surfaceRef = React.useRef(null);
@@ -15,7 +15,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text>Video player below</Text>
-      <SurfaceView style={styles.videoPlayer} playUrl={hdHomeRunUrlTrans}></SurfaceView>
+      <LibmpvVideo playUrl={frigateUrl}></LibmpvVideo>
       <Text>Video player above</Text>
     </View>
   );
@@ -31,12 +31,5 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginVertical: 20,
-  },
-  videoPlayer: {
-    position: "absolute",
-    left: 0,
-    bottom: 0,
-    right: 0,
-    top: 0
   }
 });
