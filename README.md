@@ -15,14 +15,16 @@ npm install react-native-libmpv
 ## Usage
 
 ```js
-import { LibmpvView } from "react-native-libmpv";
+import { LibmpvView } from 'react-native-libmpv';
 
 // ...
 
-<LibmpvView color="tomato" />
+<LibmpvView color="tomato" />;
 ```
 
 ## Contributing
+
+To run the example, do `npx yarn install` in the repo root and `example/` subdir. Then in the example subdir, run `npx react-native start`. While metro is running, finally run `npx react-native run-android`.
 
 See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
 
