@@ -133,6 +133,10 @@ public class LibmpvWrapper {
     MPVLib.removeObserver(observer);
   }
 
+  public void detachSurface(){
+    MPVLib.detachSurface();
+  }
+
   public void destroy(){
     MPVLib.destroy();
   }
