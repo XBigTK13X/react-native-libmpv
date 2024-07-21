@@ -70,4 +70,10 @@ public class LibmpvModule extends ReactContextBaseJavaModule {
     LibmpvWrapper.getInstance().play(url);
     promise.resolve(true);
   }
+
+  @ReactMethod
+  public void destroy(Promise promise){
+    LibmpvWrapper.getInstance().destroy();
+    promise.resolve(true)
+  }
 }

@@ -128,4 +128,12 @@ public class LibmpvWrapper {
   public void play(String url){
     MPVLib.command(new String[]{"loadfile",url});
   }
+
+  public void removeObserver(MPVLib.EventObserver observer){
+    MPVLib.removeObserver(observer);
+  }
+
+  public void destroy(){
+    MPVLib.destroy();
+  }
 }
