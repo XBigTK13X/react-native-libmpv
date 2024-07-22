@@ -54,37 +54,45 @@ public class LibmpvWrapper {
   }
 
   public void setOptionString(String option, String setting) {
-    MPVLib.setOptionString(option, setting);
+    try {
+      if (_created) {
+        MPVLib.setOptionString(option, setting);
+      }
+    } catch (Exception e) {
+      if (!swallow) {
+        throw e;
+      }
+    }
   }
 
   public void useDefaultOptions() {
-    MPVLib.setOptionString("tls-verify", "no");
-    MPVLib.setOptionString("profile", "fast");
-    MPVLib.setOptionString("vo", "gpu-next");
-    MPVLib.setOptionString("force-window", "yes");
-    MPVLib.setOptionString("ao", "audiotrack");
-    MPVLib.setOptionString("gpu-context", "android");
-    MPVLib.setOptionString("opengl-es", "yes");
-    MPVLib.setOptionString("hwdec", "mediacodec");
-    MPVLib.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
+    this.setOptionString("tls-verify", "no");
+    this.setOptionString("profile", "fast");
+    this.setOptionString("vo", "gpu-next");
+    this.setOptionString("force-window", "yes");
+    this.setOptionString("ao", "audiotrack");
+    this.setOptionString("gpu-context", "android");
+    this.setOptionString("opengl-es", "yes");
+    this.setOptionString("hwdec", "mediacodec");
+    this.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
 
-    MPVLib.setOptionString("cache", "yes");
-    MPVLib.setOptionString("cache-pause-initial", "yes");
-    MPVLib.setOptionString("demuxer-max-bytes", "32MiB");
-    MPVLib.setOptionString("demuxer-max-back-bytes", "32MiB");
+    this.setOptionString("cache", "yes");
+    this.setOptionString("cache-pause-initial", "yes");
+    this.setOptionString("demuxer-max-bytes", "32MiB");
+    this.setOptionString("demuxer-max-back-bytes", "32MiB");
 
-    MPVLib.setOptionString("sub-scale-with-window", "yes");
-    MPVLib.setOptionString("sub-use-margins", "no");
+    this.setOptionString("sub-scale-with-window", "yes");
+    this.setOptionString("sub-use-margins", "no");
 
-    MPVLib.setOptionString("alang", "");
-    MPVLib.setOptionString("slang", "");
+    this.setOptionString("alang", "");
+    this.setOptionString("slang", "");
 
-    MPVLib.setOptionString("force-window", "no");
-    MPVLib.setOptionString("keep-open", "always");
-    MPVLib.setOptionString("save-position-on-quit", "no");
-    MPVLib.setOptionString("sub-font-provider", "none");
-    MPVLib.setOptionString("ytdl", "no");
-    MPVLib.setOptionString("msg-level", "all=no");
+    this.setOptionString("force-window", "no");
+    this.setOptionString("keep-open", "always");
+    this.setOptionString("save-position-on-quit", "no");
+    this.setOptionString("sub-font-provider", "none");
+    this.setOptionString("ytdl", "no");
+    this.setOptionString("msg-level", "all=no");
   }
 
   public void init() {
@@ -99,11 +107,24 @@ public class LibmpvWrapper {
   }
 
   public void command(String[] orders) {
-    MPVLib.command(orders);
+    try {
+      MPVLib.command(orders);
+    } catch (Exception e) {
+      if (!swallow) {
+        throw e;
+      }
+    }
   }
 
   public void attachSurface(SurfaceView surfaceView) {
-    MPVLib.attachSurface(surfaceView.getHolder().getSurface());
+    try {
+      MPVLib.attachSurface(surfaceView.getHolder().getSurface());
+    } catch (Exception e) {
+      if (!swallow) {
+        throw e;
+      }
+    }
+
   }
 
   public void defaultSetup(SurfaceView surfaceView) {
@@ -111,45 +132,45 @@ public class LibmpvWrapper {
       return;
     }
 
-    MPVLib.setOptionString("tls-verify", "no");
-    MPVLib.setOptionString("profile", "fast");
-    MPVLib.setOptionString("vo", "gpu-next");
-    MPVLib.setOptionString("ao", "audiotrack");
-    MPVLib.setOptionString("gpu-context", "android");
-    MPVLib.setOptionString("opengl-es", "yes");
-    MPVLib.setOptionString("hwdec", "mediacodec");
-    MPVLib.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
+    this.setOptionString("tls-verify", "no");
+    this.setOptionString("profile", "fast");
+    this.setOptionString("vo", "gpu-next");
+    this.setOptionString("ao", "audiotrack");
+    this.setOptionString("gpu-context", "android");
+    this.setOptionString("opengl-es", "yes");
+    this.setOptionString("hwdec", "mediacodec");
+    this.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
 
-    MPVLib.setOptionString("cache", "yes");
-    MPVLib.setOptionString("cache-pause-initial", "yes");
-    MPVLib.setOptionString("demuxer-max-bytes", "32MiB");
-    MPVLib.setOptionString("demuxer-max-back-bytes", "32MiB");
+    this.setOptionString("cache", "yes");
+    this.setOptionString("cache-pause-initial", "yes");
+    this.setOptionString("demuxer-max-bytes", "32MiB");
+    this.setOptionString("demuxer-max-back-bytes", "32MiB");
 
-    MPVLib.setOptionString("sub-scale-with-window", "yes");
-    MPVLib.setOptionString("sub-use-margins", "no");
+    this.setOptionString("sub-scale-with-window", "yes");
+    this.setOptionString("sub-use-margins", "no");
 
-    MPVLib.setOptionString("alang", "");
-    MPVLib.setOptionString("slang", "");
+    this.setOptionString("alang", "");
+    this.setOptionString("slang", "");
 
     // from the mpv repo: would crash before the surface is attached
-    MPVLib.setOptionString("force-window", "no");
+    this.setOptionString("force-window", "no");
 
-    MPVLib.setOptionString("keep-open", "always");
-    MPVLib.setOptionString("save-position-on-quit", "no");
-    MPVLib.setOptionString("sub-font-provider", "none");
-    MPVLib.setOptionString("ytdl", "no");
-    MPVLib.setOptionString("msg-level", "all=no");
+    this.setOptionString("keep-open", "always");
+    this.setOptionString("save-position-on-quit", "no");
+    this.setOptionString("sub-font-provider", "none");
+    this.setOptionString("ytdl", "no");
+    this.setOptionString("msg-level", "all=no");
 
     this.init();
 
-    MPVLib.attachSurface(surfaceView.getHolder().getSurface());
+    this.attachSurface(surfaceView);
     // From the mpv repo: This forces mpv to render subs/osd/whatever into our surface even if it would ordinarily not
-    MPVLib.setOptionString("force-window", "yes");
-    MPVLib.setOptionString("vo", "gpu-next");
+    this.setOptionString("force-window", "yes");
+    this.setOptionString("vo", "gpu-next");
   }
 
   public void play(String url) {
-    MPVLib.command(new String[]{"loadfile", url});
+    this.command(new String[]{"loadfile", url});
   }
 
   public void removeObserver(MPVLib.EventObserver observer) {
@@ -166,6 +187,17 @@ public class LibmpvWrapper {
     }
   }
 
+  public void destroy() {
+    try {
+      MPVLib.destroy();
+      _created = false;
+    } catch (Exception e) {
+      if (!swallow) {
+        throw e;
+      }
+    }
+  }
+
   public void cleanup() {
     try {
       MPVLib.setPropertyString("vo", "null");
@@ -175,14 +207,14 @@ public class LibmpvWrapper {
       }
     }
     try {
-      MPVLib.setOptionString("force-window", "no");
+      this.setOptionString("force-window", "no");
     } catch (Exception e) {
       if (!swallow) {
         throw e;
       }
     }
     try {
-      MPVLib.detachSurface();
+      this.detachSurface();
     } catch (Exception e) {
       if (!swallow) {
         throw e;
@@ -190,18 +222,6 @@ public class LibmpvWrapper {
     }
     try {
       this.destroy();
-    }
-    catch(Exception e){
-      if(!swallow){
-        throw e;
-      }
-    }
-  }
-
-  public void destroy() {
-    try {
-      MPVLib.destroy();
-      _created = false;
     } catch (Exception e) {
       if (!swallow) {
         throw e;
