@@ -129,15 +129,25 @@ public class LibmpvWrapper {
     MPVLib.command(new String[]{"loadfile",url});
   }
 
-  public void removeObserver(MPVLib.EventObserver observer){
+  public void removeObserver(MPVLib.EventObserver observer){    
     MPVLib.removeObserver(observer);
   }
 
   public void detachSurface(){
-    MPVLib.detachSurface();
+    try {
+      MPVLib.detachSurface();
+    }
+    catch(Exception e){
+
+    }
   }
 
   public void destroy(){
-    MPVLib.destroy();
+    try {
+      MPVLib.destroy();
+    }
+    catch(Exception e){
+
+    }
   }
 }
