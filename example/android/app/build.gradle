@@ -102,6 +102,23 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+
+  packagingOptions {
+    pickFirst '**arm64-v8a/libc++_shared.so'
+  }
+}
+
+repositories {
+  maven {
+    url "http://9914.us:9876/repository/main/"
+    credentials {
+      username "admin"
+      password "admin1"
+    }
+    allowInsecureProtocol = true
+  }
+  mavenCentral()
+  google()
 }
 
 dependencies {

@@ -77,11 +77,16 @@ android {
 }
 
 repositories {
+  maven {
+    url "http://9914.us:9876/repository/main/"
+    credentials {
+      username "admin"
+      password "admin1"
+    }
+    allowInsecureProtocol = true
+  }
   mavenCentral()
   google()
-  flatDir {
-    dirs 'libmpv'
-  }
 }
 
 
@@ -92,6 +97,6 @@ dependencies {
   implementation "com.facebook.react:react-native:+"
   // https://stackoverflow.com/questions/60878599/error-building-android-library-direct-local-aar-file-dependencies-are-not-supp
   // https://dev.devbf.com/posts/how-to-include-external-aar-package-manually-using-gradle-for-android-studio-82fc3/
-  implementation files('libmpv/libmpv-0.2.0.aar')
+  implementation "com.libmpv:android-libmpv:0.2.0"
 }
 
