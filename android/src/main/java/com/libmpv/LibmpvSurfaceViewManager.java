@@ -25,8 +25,6 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
   public static final String REACT_CLASS = "LibmpvSurfaceView";
-  // TODO This is dumb and dangerous. Pull it out into a view wrapper
-  private static ThemedReactContext __reactContext;
   @Override
   @NonNull
   public String getName() {
@@ -36,13 +34,13 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
   @Override
   @NonNull
   public SurfaceView createViewInstance(ThemedReactContext reactContext) {
-    __reactContext = reactContext;
     return new SurfaceView(reactContext);
   }
 
   @ReactProp(name="playUrl")
   public void register(SurfaceView view, String playUrl){
-    DeviceEventManagerModule.RCTDeviceEventEmitter reactEventEmitter = __reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+    ThemedReactContext reactContext = (ThemedReactContext)view.getContext();
+    DeviceEventManagerModule.RCTDeviceEventEmitter reactEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
     LibmpvWrapper.getInstance().defaultSetup(view);
     LibmpvWrapper.getInstance().addEventObserver(new MPVLib.EventObserver(){
       @Override
