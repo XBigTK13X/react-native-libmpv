@@ -50,6 +50,16 @@ type LibmpvVideoProps = {
   onLibmpvEvent: (libmpvEvent: object) => void
 }
 
+const styles = StyleSheet.create({
+  videoPlayer: {
+    position: "absolute",
+    left: 0,
+    bottom: 0,
+    right: 0,
+    top: 0
+  }
+});
+
 export function LibmpvVideo(props: LibmpvVideoProps) {
   const [libmpvListener, setListener] = React.useState<EmitterSubscription>();
   React.useEffect(() => {
@@ -77,15 +87,5 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
 
   return <SurfaceView style={styles.videoPlayer} playUrl={props.playUrl} />
 }
-
-const styles = StyleSheet.create({
-  videoPlayer: {
-    position: "absolute",
-    left: 0,
-    bottom: 0,
-    right: 0,
-    top: 0
-  }
-});
 
 export default Libmpv

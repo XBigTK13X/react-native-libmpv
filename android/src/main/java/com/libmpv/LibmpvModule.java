@@ -82,4 +82,10 @@ public class LibmpvModule extends ReactContextBaseJavaModule {
     LibmpvWrapper.getInstance().detachSurface();
     promise.resolve(true);
   }
+
+  @ReactMethod
+  public void cleanup(Promise promise){
+    LibmpvWrapper.getInstance().cleanup();
+    promise.resolve(true);
+  }
 }

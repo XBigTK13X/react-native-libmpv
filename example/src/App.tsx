@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet, View, Button, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { LibmpvVideo } from 'react-native-libmpv';
+import { LibmpvVideo, Libmpv } from 'react-native-libmpv';
 
 const styles = StyleSheet.create({
   container: {
@@ -25,7 +25,14 @@ function LandingPage({ navigation }) {
   )
 }
 
-function VideoPage() {
+function VideoPage({ navigation }) {
+  React.useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+      Libmpv.cleanup()
+      return
+    })
+  })
+
   function onLibmpvEvent(libmpvEvent) {
     console.log({ libmpvEvent })
   }
