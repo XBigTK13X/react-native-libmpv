@@ -42,6 +42,9 @@ public class LibmpvWrapper {
   }
 
   public void addEventObserver(MPVLib.EventObserver observer) {
+    if(!_created){
+      return;
+    }
     MPVLib.addObserver(observer);
     MPVLib.observeProperty("track-list", MPVLib.MPV_FORMAT_STRING);
     MPVLib.observeProperty("paused-for-cache", MPVLib.MPV_FORMAT_FLAG);
@@ -60,6 +63,18 @@ public class LibmpvWrapper {
       }
     } catch (Exception e) {
       if (!swallow) {
+        throw e;
+      }
+    }
+  }
+
+  public void setPropertyString(String property, String setting){
+    try{
+      if(_created){
+        MPVLib.setPropertyString(property, setting);
+      }
+    } catch(Exception e){
+      if(!swallow){
         throw e;
       }
     }
@@ -97,7 +112,9 @@ public class LibmpvWrapper {
 
   public void init() {
     try {
-      MPVLib.init();
+      if(_created){
+        MPVLib.init();
+      }
     } catch (Exception e) {
       if (!swallow) {
         throw e;
@@ -108,7 +125,9 @@ public class LibmpvWrapper {
 
   public void command(String[] orders) {
     try {
-      MPVLib.command(orders);
+      if(_created){
+        MPVLib.command(orders);
+      }
     } catch (Exception e) {
       if (!swallow) {
         throw e;
@@ -118,7 +137,9 @@ public class LibmpvWrapper {
 
   public void attachSurface(SurfaceView surfaceView) {
     try {
-      MPVLib.attachSurface(surfaceView.getHolder().getSurface());
+      if(_created){
+        MPVLib.attachSurface(surfaceView.getHolder().getSurface());
+      }
     } catch (Exception e) {
       if (!swallow) {
         throw e;
@@ -174,7 +195,14 @@ public class LibmpvWrapper {
   }
 
   public void removeObserver(MPVLib.EventObserver observer) {
-    MPVLib.removeObserver(observer);
+    try{
+      MPVLib.removeObserver(observer);
+    } catch(Exception e){
+      if(!swallow){
+        throw e;
+      }
+    }
+
   }
 
   public void detachSurface() {
@@ -200,28 +228,36 @@ public class LibmpvWrapper {
 
   public void cleanup() {
     try {
-      MPVLib.setPropertyString("vo", "null");
+      if(_created){
+        this.setPropertyString("vo", "null");
+      }
     } catch (Exception e) {
       if (!swallow) {
         throw e;
       }
     }
     try {
-      this.setOptionString("force-window", "no");
+      if(_created){
+        this.setOptionString("force-window", "no");
+      }
     } catch (Exception e) {
       if (!swallow) {
         throw e;
       }
     }
     try {
-      this.detachSurface();
+      if(_created){
+        this.detachSurface();
+      }
     } catch (Exception e) {
       if (!swallow) {
         throw e;
       }
     }
     try {
-      this.destroy();
+      if(_created){
+        this.destroy();
+      }
     } catch (Exception e) {
       if (!swallow) {
         throw e;
