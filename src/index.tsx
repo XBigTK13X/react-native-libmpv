@@ -42,12 +42,10 @@ export const Libmpv = NativeModules.Libmpv
     }
   );
 
-// Example of another video player in react-native
-// https://github.com/razorRun/react-native-vlc-media-player/blob/master/VLCPlayer.js
-
 type LibmpvVideoProps = {
   playUrl: string,
-  onLibmpvEvent: (libmpvEvent: object) => void
+  onLibmpvEvent: (libmpvEvent: object) => void,
+  surfaceStyle: object
 }
 
 const styles = StyleSheet.create({
@@ -84,8 +82,7 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
     }
     return
   }, []);
-
-  return <SurfaceView style={styles.videoPlayer} playUrl={props.playUrl} />
+  return <SurfaceView style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer} playUrl={props.playUrl} />
 }
 
 export default Libmpv
