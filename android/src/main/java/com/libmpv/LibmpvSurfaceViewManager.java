@@ -19,77 +19,93 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 // Available event constants
 // https://github.com/facebook/react-native/blob/main/packages/react-native/ReactAndroid/src/main/java/com/facebook/react/uimanager/UIManagerModuleConstants.java
-
 // An example video player using VLC
 // https://github.com/razorRun/react-native-vlc-media-player/blob/master/android/src/main/java/com/yuanzhou/vlc/vlcplayer/ReactVlcPlayerViewManager.java
-
 public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
-  public static final String REACT_CLASS = "LibmpvSurfaceView";
-  @Override
-  @NonNull
-  public String getName() {
-    return REACT_CLASS;
-  }
 
-  @Override
-  @NonNull
-  public SurfaceView createViewInstance(ThemedReactContext reactContext) {
-    return new SurfaceView(reactContext);
-  }
+    public static final String REACT_CLASS = "LibmpvSurfaceView";
 
-  @ReactProp(name="playUrl")
-  public void register(SurfaceView view, String playUrl){
-    ThemedReactContext reactContext = (ThemedReactContext)view.getContext();
-    DeviceEventManagerModule.RCTDeviceEventEmitter reactEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
-    LibmpvWrapper.getInstance().defaultSetup(view);
-    LibmpvWrapper.getInstance().addEventObserver(new MPVLib.EventObserver(){
-      @Override
-      public void eventProperty(@NonNull String property){
-        WritableMap event = Arguments.createMap();
-        event.putString("property", property);
-        event.putString("kind","none");
-        reactEventEmitter.emit("libmpv", event);
-      }
-      @Override
-      public void eventProperty(@NonNull String property, long value){
-        WritableMap event = Arguments.createMap();
-        event.putString("property", property);
-        event.putString("kind", "long");
-        event.putString("value", ""+value);
-        reactEventEmitter.emit("libmpv", event);
-      }
-      @Override
-      public void eventProperty(@NonNull String property, double value){
-        WritableMap event = Arguments.createMap();
-        event.putString("property", property);
-        event.putString("kind", "double");
-        event.putString("value", ""+value);
-        reactEventEmitter.emit("libmpv", event);
-      }
-      @Override
-      public void eventProperty(@NonNull String property, boolean value){
-        WritableMap event = Arguments.createMap();
-        event.putString("property", property);
-        event.putString("value", value?"true":"false");
-        event.putString("kind", "boolean");
-        reactEventEmitter.emit("libmpv", event);
-      }
-      @Override
-      public void eventProperty(@NonNull String property, @NonNull String value){
-        WritableMap event = Arguments.createMap();
-        event.putString("property", property);
-        event.putString("value", value);
-        event.putString("kind", "string");
-        reactEventEmitter.emit("libmpv", event);
-      }
-      @Override
-      public void event(@MPVLib.Event int eventId){
-        WritableMap event = Arguments.createMap();
-        event.putString("eventId", ""+eventId);
-        event.putString("kind", "eventId");
-        reactEventEmitter.emit("libmpv", event);
-      }
-    });
-    LibmpvWrapper.getInstance().play(playUrl);
-  }
+    @Override
+    @NonNull
+    public String getName() {
+        return REACT_CLASS;
+    }
+
+    @Override
+    @NonNull
+    public SurfaceView createViewInstance(ThemedReactContext reactContext) {
+        return new SurfaceView(reactContext);
+    }
+
+    @ReactProp(name = "playUrl")
+    public void register(SurfaceView view, String playUrl) {
+        ThemedReactContext reactContext = (ThemedReactContext) view.getContext();
+        DeviceEventManagerModule.RCTDeviceEventEmitter reactEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        LibmpvWrapper.getInstance().defaultSetup(view);
+        LibmpvWrapper.getInstance().addEventObserver(new MPVLib.EventObserver() {
+            @Override
+            public void eventProperty(@NonNull String property) {
+                WritableMap event = Arguments.createMap();
+                event.putString("property", property);
+                event.putString("kind", "none");
+                reactEventEmitter.emit("libmpvEvent", event);
+            }
+
+            @Override
+            public void eventProperty(@NonNull String property, long value) {
+                WritableMap event = Arguments.createMap();
+                event.putString("property", property);
+                event.putString("kind", "long");
+                event.putString("value", "" + value);
+                reactEventEmitter.emit("libmpvEvent", event);
+            }
+
+            @Override
+            public void eventProperty(@NonNull String property, double value) {
+                WritableMap event = Arguments.createMap();
+                event.putString("property", property);
+                event.putString("kind", "double");
+                event.putString("value", "" + value);
+                reactEventEmitter.emit("libmpvEvent", event);
+            }
+
+            @Override
+            public void eventProperty(@NonNull String property, boolean value) {
+                WritableMap event = Arguments.createMap();
+                event.putString("property", property);
+                event.putString("value", value ? "true" : "false");
+                event.putString("kind", "boolean");
+                reactEventEmitter.emit("libmpvEvent", event);
+            }
+
+            @Override
+            public void eventProperty(@NonNull String property, @NonNull String value) {
+                WritableMap event = Arguments.createMap();
+                event.putString("property", property);
+                event.putString("value", value);
+                event.putString("kind", "string");
+                reactEventEmitter.emit("libmpvEvent", event);
+            }
+
+            @Override
+            public void event(@MPVLib.Event int eventId) {
+                WritableMap event = Arguments.createMap();
+                event.putString("eventId", "" + eventId);
+                event.putString("kind", "eventId");
+                reactEventEmitter.emit("libmpvEvent", event);
+            }
+        });
+        DeviceEventManagerModule.RCTDeviceEventEmitter reactLogEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        LibmpvWrapper.getInstance().addLogObserver(new MPVLib.LogObserver() {
+            @Override
+            public void logMessage(@NonNull String prefix, int level, @NonNull String text) {
+                WritableMap log = Arguments.createMap();
+                log.putString("prefix", prefix);
+                log.putString("level", "" + level);
+                log.putString("text", text);
+                reactLogEmitter.emit("libmpvLog", log);
+            }
+        });
+        LibmpvWrapper.getInstance().play(playUrl);
+    }
 }

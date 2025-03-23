@@ -26,6 +26,14 @@ public class LibmpvModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void addListener(String type) {
+    }
+
+    @ReactMethod
+    public void removeListeners(Integer type) {
+    }
+
+    @ReactMethod
     public void create(Promise promise) {
         LibmpvWrapper.getInstance().create();
         promise.resolve(true);

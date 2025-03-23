@@ -36,10 +36,18 @@ function VideoPage({ navigation }) {
   function onLibmpvEvent(libmpvEvent) {
     console.log({ libmpvEvent })
   }
-  const videoUrl = 'http://192.168.1.5:5004/auto/v4.1'
+
+  function onLibmpvLog(libmpvLog) {
+    console.log({ libmpvLog })
+  }
+  const videoUrl = 'http://tv-tuner.9914.us:5004/auto/v4.1'
   return (
     <View style={styles.container}>
-      <LibmpvVideo playUrl={videoUrl} onLibmpvEvent={onLibmpvEvent}></LibmpvVideo>
+      <LibmpvVideo
+        playUrl={videoUrl}
+        onLibmpvEvent={onLibmpvEvent}
+        onLibmpvLog={onLibmpvLog}
+      ></LibmpvVideo>
     </View>
   )
 }

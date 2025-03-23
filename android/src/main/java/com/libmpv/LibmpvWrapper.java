@@ -55,6 +55,17 @@ public class LibmpvWrapper {
         MPVLib.observeProperty("speed", MPVLib.MPV_FORMAT_DOUBLE);
     }
 
+    public void addLogObserver(MPVLib.LogObserver observer) {
+        try {
+            MPVLib.addLogObserver(observer);
+        } catch (Exception e) {
+            if (!swallow) {
+                throw e;
+            }
+        }
+
+    }
+
     public void setOptionString(String option, String setting) {
         try {
             if (_created) {
