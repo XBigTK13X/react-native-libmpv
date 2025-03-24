@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const EVENT_LOOKUP = {
+const EVENT_LOOKUP: any = {
   "0": 'NONE',
   "1": 'SHUTDOWN',
   "2": 'LOG_MESSAGE',
