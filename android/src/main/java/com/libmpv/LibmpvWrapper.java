@@ -90,36 +90,6 @@ public class LibmpvWrapper {
         }
     }
 
-    public void useDefaultOptions() {
-        this.setOptionString("tls-verify", "no");
-        this.setOptionString("profile", "fast");
-        this.setOptionString("vo", "gpu-next");
-        this.setOptionString("force-window", "yes");
-        this.setOptionString("ao", "audiotrack");
-        this.setOptionString("gpu-context", "android");
-        this.setOptionString("opengl-es", "yes");
-        this.setOptionString("hwdec", "mediacodec");
-        this.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
-
-        this.setOptionString("cache", "yes");
-        this.setOptionString("cache-pause-initial", "yes");
-        this.setOptionString("demuxer-max-bytes", "32MiB");
-        this.setOptionString("demuxer-max-back-bytes", "32MiB");
-
-        this.setOptionString("sub-scale-with-window", "yes");
-        this.setOptionString("sub-use-margins", "no");
-
-        this.setOptionString("alang", "");
-        this.setOptionString("slang", "");
-
-        this.setOptionString("force-window", "no");
-        this.setOptionString("keep-open", "always");
-        this.setOptionString("save-position-on-quit", "no");
-        this.setOptionString("sub-font-provider", "none");
-        this.setOptionString("ytdl", "no");
-        this.setOptionString("msg-level", "all=no");
-    }
-
     public void init() {
         try {
             if (_created) {
@@ -169,8 +139,10 @@ public class LibmpvWrapper {
         this.setOptionString("ao", "audiotrack");
         this.setOptionString("gpu-context", "android");
         this.setOptionString("opengl-es", "yes");
-        this.setOptionString("hwdec", "mediacodec");
-        this.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
+        //this.setOptionString("hwdec", "mediacodec");
+        //this.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
+        this.setOptionString("hwdec", "mediacodec-copy");
+        this.setOptionString("hwdec-codecs", "all");
 
         this.setOptionString("cache", "yes");
         this.setOptionString("cache-pause-initial", "yes");

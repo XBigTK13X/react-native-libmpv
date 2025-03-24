@@ -46,12 +46,6 @@ public class LibmpvModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void useDefaultOptions(Promise promise) {
-        LibmpvWrapper.getInstance().useDefaultOptions();
-        promise.resolve(true);
-    }
-
-    @ReactMethod
     public void init(Promise promise) {
         LibmpvWrapper.getInstance().init();
         promise.resolve(true);
