@@ -112,6 +112,7 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
         logObserver.remove()
       }
     }
+    return () => { }
   }, [])
   return <SurfaceView style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer} playUrl={props.playUrl} />
 }
