@@ -31,7 +31,9 @@ function VideoPage({ navigation }) {
 
   React.useEffect(() => {
     navigation.addListener('beforeRemove', (e) => {
-      console.log("Libmpv should have cleaned up");
+      console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
+      console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
+      console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
       Libmpv.cleanup()
       return
     })

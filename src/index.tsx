@@ -80,42 +80,37 @@ const EVENT_LOOKUP: any = {
 }
 
 export function LibmpvVideo(props: LibmpvVideoProps) {
-  const [libmpvEventListener, setEventListener] = React.useState<EmitterSubscription>();
-  const [libmpvLogObserver, setLogObserver] = React.useState<EmitterSubscription>();
+  const [activityListener, setActivityListener] = React.useState<EmitterSubscription>();
   React.useEffect(() => {
-    if (!libmpvEventListener && props.onLibmpvEvent) {
+    if (!activityListener && props.onLibmpvEvent) {
       const eventEmitter = new NativeEventEmitter(NativeModules.Libmpv);
-      let eventListener = eventEmitter.addListener('libmpvEvent', (libmpvEvent) => {
-        if (libmpvEvent.eventId) {
-          libmpvEvent.value = parseInt(libmpvEvent.eventId, 10)
+      const eventListener = eventEmitter.addListener('libmpvEvent', (libmpvEvent) => {
+        if (props.onLibmpvEvent) {
+          if (libmpvEvent.eventId) {
+            libmpvEvent.value = parseInt(libmpvEvent.eventId, 10)
+          }
+          if (libmpvEvent.kind === 'long' || libmpvEvent.kind === 'double') {
+            libmpvEvent.value = Number(libmpvEvent.value)
+          }
+          if (libmpvEvent.kind === 'boolean') {
+            libmpvEvent.value = libmpvEvent.value === 'true'
+          }
+          if (libmpvEvent.hasOwnProperty('eventId')) {
+            libmpvEvent.eventKind = EVENT_LOOKUP[libmpvEvent.eventId]
+          }
+          return props.onLibmpvEvent(libmpvEvent)
         }
-        if (libmpvEvent.kind === 'long' || libmpvEvent.kind === 'double') {
-          libmpvEvent.value = Number(libmpvEvent.value)
-        }
-        if (libmpvEvent.kind === 'boolean') {
-          libmpvEvent.value = libmpvEvent.value === 'true'
-        }
-        if (libmpvEvent.hasOwnProperty('eventId')) {
-          libmpvEvent.eventKind = EVENT_LOOKUP[libmpvEvent.eventId]
-        }
-        return props.onLibmpvEvent(libmpvEvent)
-
       })
-      setEventListener(eventListener);
-    }
-    if (!libmpvEventListener && props.onLibmpvLog) {
-      const logEmitter = new NativeEventEmitter(NativeModules.Libmpv);
-      let logObserver = logEmitter.addListener('libmpvLog', (libmpvLog) => {
-        return props.onLibmpvLog(libmpvLog);
+      const logObserver = eventEmitter.addListener('libmpvLog', (libmpvLog) => {
+        if (props.onLibmpvLog) {
+          return props.onLibmpvLog(libmpvLog);
+        }
       })
-      setLogObserver(logObserver)
-    }
-    return () => {
-      if (libmpvEventListener) {
-        libmpvEventListener.remove();
+      setActivityListener(activityListener)
+      return () => {
+        eventListener.remove()
+        logObserver.remove()
       }
-      if (libmpvLogObserver)
-        libmpvLogObserver.remove();
     }
   }, [])
   return <SurfaceView style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer} playUrl={props.playUrl} />

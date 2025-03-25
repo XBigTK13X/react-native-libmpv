@@ -95,7 +95,6 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 reactEventEmitter.emit("libmpvEvent", event);
             }
         });
-        DeviceEventManagerModule.RCTDeviceEventEmitter reactLogEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
         LibmpvWrapper.getInstance().addLogObserver(new MPVLib.LogObserver() {
             @Override
             public void logMessage(@NonNull String prefix, int level, @NonNull String text) {
@@ -103,7 +102,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 log.putString("prefix", prefix);
                 log.putString("level", "" + level);
                 log.putString("text", text);
-                reactLogEmitter.emit("libmpvLog", log);
+                reactEventEmitter.emit("libmpvLog", log);
             }
         });
         LibmpvWrapper.getInstance().play(playUrl);
