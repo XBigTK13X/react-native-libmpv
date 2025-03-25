@@ -12,26 +12,22 @@ Libmpv wrapper GUI component
 npm install react-native-libmpv
 ```
 
-## Usage
+## Updating the AAR
 
-```js
-import { LibmpvView } from 'react-native-libmpv';
+Pull down the fork of libmpv-android.
 
-// ...
+Make the needed changes.
 
-<LibmpvView color="tomato" />;
-```
+Update the version in the kotlin file.
 
-## Contributing
+Run `buildscripts/docker-build.sh`
 
-To run the example, do `npx yarn install` in the repo root and `example/` subdir. Then in the example subdir, run `npx react-native start`. While metro is running, finally run `npx react-native run-android`.
+Login as admin/admin to reposlite.9914.us
 
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+Navigate to the main/repository path
 
-## License
+Download the previous version's POM. Edit to the new version number.
 
-MIT
+Rename generated aar to match versioning schema.
 
----
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+Upload POM and AAR to reposlite. Bump the version in the `react-native-libmpv` project.

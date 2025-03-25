@@ -25,20 +25,26 @@ function LandingPage({ navigation }) {
   )
 }
 
+
 function VideoPage({ navigation }) {
+  let renderCount = Math.floor(Math.random() * 10000)
+
   React.useEffect(() => {
     navigation.addListener('beforeRemove', (e) => {
+      console.log("Libmpv should have cleaned up");
       Libmpv.cleanup()
       return
     })
+    renderCount += 1
   })
 
+
   function onLibmpvEvent(libmpvEvent) {
-    console.log({ libmpvEvent })
+    console.log({ renderCount, libmpvEvent })
   }
 
   function onLibmpvLog(libmpvLog) {
-    console.log({ libmpvLog })
+    console.log({ renderCount, libmpvLog })
   }
   const videoUrl = 'http://tv-tuner.9914.us:5004/auto/v4.1'
   return (

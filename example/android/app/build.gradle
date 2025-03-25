@@ -110,12 +110,8 @@ android {
 
 repositories {
   maven {
-    url "http://9914.us:9876/repository/main/"
-    credentials {
-      username "admin"
-      password "admin1"
-    }
-    allowInsecureProtocol = true
+    name "reposlite"
+    url "https://reposlite.9914.us/repository/main/"
   }
   mavenCentral()
   google()

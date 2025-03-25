@@ -22,6 +22,8 @@ public class LibmpvWrapper {
 
     private Context _applicationContext;
     private boolean _created;
+    private MPVLib.EventObserver _eventObserver;
+    private MPVLib.LogObserver _logObserver;
 
     private LibmpvWrapper() {
         _created = false;
@@ -32,33 +34,68 @@ public class LibmpvWrapper {
     }
 
     public boolean create() {
-        if (!_created) {
-            MPVLib.create(_applicationContext);
-            _created = true;
-            return true;
+        if (_created) {
+            try {
+                this.destroy();
+                _created = false;
+            } catch (Exception e) {
+                if (!swallow) {
+                    throw e;
+                }
+            }
+
         }
-        return false;
+        MPVLib.create(_applicationContext);
+        _created = true;
+        return true;
+    }
+
+    private void logException(Exception exception) {
+        try {
+            if (_logObserver != null) {
+                _logObserver.logMessage("RNLE", 20, exception.getMessage());
+            }
+        } catch (Exception e) {
+            if (!swallow) {
+                throw e;
+            }
+        }
     }
 
     public void addEventObserver(MPVLib.EventObserver observer) {
-        if (!_created) {
-            return;
+        try {
+            if (!_created) {
+                return;
+            }
+            MPVLib.removeObservers();
+            _eventObserver = observer;
+            MPVLib.addObserver(_eventObserver);
+            MPVLib.observeProperty("demuxer-cache-time", MPVLib.MPV_FORMAT_INT64);
+            MPVLib.observeProperty("duration", MPVLib.MPV_FORMAT_INT64);
+            MPVLib.observeProperty("eof-reached", MPVLib.MPV_FORMAT_FLAG);
+            MPVLib.observeProperty("paused-for-cache", MPVLib.MPV_FORMAT_FLAG);
+            MPVLib.observeProperty("seekable", MPVLib.MPV_FORMAT_FLAG);
+            MPVLib.observeProperty("speed", MPVLib.MPV_FORMAT_DOUBLE);
+            MPVLib.observeProperty("time-pos", MPVLib.MPV_FORMAT_INT64);
+            MPVLib.observeProperty("track-list", MPVLib.MPV_FORMAT_STRING);
+        } catch (Exception e) {
+            logException(e);
+            if (!swallow) {
+                throw e;
+            }
         }
-        MPVLib.addObserver(observer);
-        MPVLib.observeProperty("track-list", MPVLib.MPV_FORMAT_STRING);
-        MPVLib.observeProperty("paused-for-cache", MPVLib.MPV_FORMAT_FLAG);
-        MPVLib.observeProperty("eof-reached", MPVLib.MPV_FORMAT_FLAG);
-        MPVLib.observeProperty("seekable", MPVLib.MPV_FORMAT_FLAG);
-        MPVLib.observeProperty("time-pos", MPVLib.MPV_FORMAT_INT64);
-        MPVLib.observeProperty("duration", MPVLib.MPV_FORMAT_INT64);
-        MPVLib.observeProperty("demuxer-cache-time", MPVLib.MPV_FORMAT_INT64);
-        MPVLib.observeProperty("speed", MPVLib.MPV_FORMAT_DOUBLE);
     }
 
     public void addLogObserver(MPVLib.LogObserver observer) {
         try {
-            MPVLib.addLogObserver(observer);
+            if (!_created) {
+                return;
+            }
+            MPVLib.removeLogObservers();
+            _logObserver = observer;
+            MPVLib.addLogObserver(_logObserver);
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -72,6 +109,7 @@ public class LibmpvWrapper {
                 MPVLib.setOptionString(option, setting);
             }
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -84,6 +122,7 @@ public class LibmpvWrapper {
                 MPVLib.setPropertyString(property, setting);
             }
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -96,6 +135,7 @@ public class LibmpvWrapper {
                 MPVLib.init();
             }
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -109,6 +149,8 @@ public class LibmpvWrapper {
                 MPVLib.command(orders);
             }
         } catch (Exception e) {
+            logException(e);
+
             if (!swallow) {
                 throw e;
             }
@@ -121,6 +163,7 @@ public class LibmpvWrapper {
                 MPVLib.attachSurface(surfaceView.getHolder().getSurface());
             }
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -188,21 +231,11 @@ public class LibmpvWrapper {
         this.command(new String[]{"set_property", "pause", "false"});
     }
 
-    public void removeObserver(MPVLib.EventObserver observer) {
-        try {
-            MPVLib.removeObserver(observer);
-        } catch (Exception e) {
-            if (!swallow) {
-                throw e;
-            }
-        }
-
-    }
-
     public void detachSurface() {
         try {
             MPVLib.detachSurface();
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -211,9 +244,25 @@ public class LibmpvWrapper {
 
     public void destroy() {
         try {
+            MPVLib.removeObservers();
+        } catch (Exception e) {
+            logException(e);
+            if (!swallow) {
+                throw e;
+            }
+        }
+        try {
+            MPVLib.removeLogObservers();
+        } catch (Exception e) {
+            if (!swallow) {
+                throw e;
+            }
+        }
+        try {
             MPVLib.destroy();
             _created = false;
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -226,6 +275,7 @@ public class LibmpvWrapper {
                 this.setPropertyString("vo", "null");
             }
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -235,6 +285,7 @@ public class LibmpvWrapper {
                 this.setOptionString("force-window", "no");
             }
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -244,6 +295,7 @@ public class LibmpvWrapper {
                 this.detachSurface();
             }
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
@@ -253,6 +305,7 @@ public class LibmpvWrapper {
                 this.destroy();
             }
         } catch (Exception e) {
+            logException(e);
             if (!swallow) {
                 throw e;
             }
