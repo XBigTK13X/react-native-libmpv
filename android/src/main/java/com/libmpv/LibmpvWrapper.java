@@ -22,11 +22,13 @@ public class LibmpvWrapper {
 
     private Context _applicationContext;
     private boolean _created;
+    private boolean _isPlaying;
     private MPVLib.EventObserver _eventObserver;
     private MPVLib.LogObserver _logObserver;
 
     private LibmpvWrapper() {
         _created = false;
+        _isPlaying = false;
     }
 
     public void setContext(Context applicationContext) {
@@ -48,6 +50,14 @@ public class LibmpvWrapper {
         MPVLib.create(_applicationContext);
         _created = true;
         return true;
+    }
+
+    public boolean isCreated() {
+        return _created;
+    }
+
+    public boolean isPlaying() {
+        return _isPlaying;
     }
 
     private void logException(Exception exception) {
@@ -216,19 +226,32 @@ public class LibmpvWrapper {
     }
 
     public void play(String url) {
-        this.command(new String[]{"loadfile", url});
+        if (!_isPlaying) {
+            this.command(new String[]{"loadfile", url});
+            _isPlaying = true;
+        }
     }
 
     public void pauseOrUnpause() {
-        this.command(new String[]{"cycle", "pause"});
+        if (_isPlaying) {
+            this.pause();
+        } else {
+            this.unpause();
+        }
     }
 
     public void pause() {
-        this.command(new String[]{"set_property", "pause", "true"});
+        if (_isPlaying) {
+            this.command(new String[]{"set", "pause", "yes"});
+            _isPlaying = false;
+        }
     }
 
     public void unpause() {
-        this.command(new String[]{"set_property", "pause", "false"});
+        if (!_isPlaying) {
+            this.command(new String[]{"set", "pause", "no"});
+            _isPlaying = true;
+        }
     }
 
     public void detachSurface() {
@@ -272,7 +295,9 @@ public class LibmpvWrapper {
     public void cleanup() {
         try {
             if (_created) {
+                this.pause();
                 this.setPropertyString("vo", "null");
+                this.setPropertyString("ao", "null");
             }
         } catch (Exception e) {
             logException(e);

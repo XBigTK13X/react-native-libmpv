@@ -18,6 +18,7 @@ const LINKING_ERROR =
 
 type NativeProps = {
   playUrl: String,
+  isPlaying: Boolean,
   style: ViewStyle
 };
 
@@ -44,6 +45,7 @@ export const Libmpv = NativeModules.Libmpv
 
 type LibmpvVideoProps = {
   playUrl: string,
+  isPlaying: boolean,
   onLibmpvEvent: (libmpvEvent: object) => void,
   onLibmpvLog: (livmpvLog: object) => void,
   surfaceStyle: object
@@ -114,7 +116,10 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
     }
     return () => { }
   }, [])
-  return <SurfaceView style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer} playUrl={props.playUrl} />
+  return <SurfaceView
+    style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer}
+    playUrl={props.playUrl}
+    isPlaying={props.isPlaying} />
 }
 
 export default Libmpv

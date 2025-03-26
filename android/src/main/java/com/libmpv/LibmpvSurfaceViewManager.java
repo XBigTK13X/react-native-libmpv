@@ -25,6 +25,13 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
 
     public static final String REACT_CLASS = "LibmpvSurfaceView";
 
+    private static final boolean DEBUG_VIEW_MANAGER = false;
+    private static int CREATE_COUNT = 0;
+    private static int REGISTER_COUNT = 0;
+    private static int IS_PLAYING_COUNT = 0;
+
+    private DeviceEventManagerModule.RCTDeviceEventEmitter _reactEventEmitter;
+
     @Override
     @NonNull
     public String getName() {
@@ -34,13 +41,20 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     @Override
     @NonNull
     public SurfaceView createViewInstance(ThemedReactContext reactContext) {
+        if (DEBUG_VIEW_MANAGER) {
+            CREATE_COUNT += 1;
+        }
         return new SurfaceView(reactContext);
     }
 
     @ReactProp(name = "playUrl")
     public void register(SurfaceView view, String playUrl) {
+        if (DEBUG_VIEW_MANAGER) {
+            REGISTER_COUNT += 1;
+        }
+        LibmpvWrapper.getInstance().cleanup();
         ThemedReactContext reactContext = (ThemedReactContext) view.getContext();
-        DeviceEventManagerModule.RCTDeviceEventEmitter reactEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        _reactEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
         LibmpvWrapper.getInstance().defaultSetup(view);
         LibmpvWrapper.getInstance().addEventObserver(new MPVLib.EventObserver() {
             @Override
@@ -48,7 +62,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 WritableMap event = Arguments.createMap();
                 event.putString("property", property);
                 event.putString("kind", "none");
-                reactEventEmitter.emit("libmpvEvent", event);
+                _reactEventEmitter.emit("libmpvEvent", event);
             }
 
             @Override
@@ -57,7 +71,12 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 event.putString("property", property);
                 event.putString("kind", "long");
                 event.putString("value", "" + value);
-                reactEventEmitter.emit("libmpvEvent", event);
+                if (DEBUG_VIEW_MANAGER) {
+                    event.putString("REGISTER", "" + REGISTER_COUNT);
+                    event.putString("CREATE", "" + CREATE_COUNT);
+                    event.putString("IS_PLAYING_COUNT", "" + IS_PLAYING_COUNT);
+                }
+                _reactEventEmitter.emit("libmpvEvent", event);
             }
 
             @Override
@@ -66,7 +85,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 event.putString("property", property);
                 event.putString("kind", "double");
                 event.putString("value", "" + value);
-                reactEventEmitter.emit("libmpvEvent", event);
+                _reactEventEmitter.emit("libmpvEvent", event);
             }
 
             @Override
@@ -75,7 +94,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 event.putString("property", property);
                 event.putString("value", value ? "true" : "false");
                 event.putString("kind", "boolean");
-                reactEventEmitter.emit("libmpvEvent", event);
+                _reactEventEmitter.emit("libmpvEvent", event);
             }
 
             @Override
@@ -84,7 +103,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 event.putString("property", property);
                 event.putString("value", value);
                 event.putString("kind", "string");
-                reactEventEmitter.emit("libmpvEvent", event);
+                _reactEventEmitter.emit("libmpvEvent", event);
             }
 
             @Override
@@ -92,7 +111,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 WritableMap event = Arguments.createMap();
                 event.putString("eventId", "" + eventId);
                 event.putString("kind", "eventId");
-                reactEventEmitter.emit("libmpvEvent", event);
+                _reactEventEmitter.emit("libmpvEvent", event);
             }
         });
         LibmpvWrapper.getInstance().addLogObserver(new MPVLib.LogObserver() {
@@ -102,9 +121,40 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 log.putString("prefix", prefix);
                 log.putString("level", "" + level);
                 log.putString("text", text);
-                reactEventEmitter.emit("libmpvLog", log);
+                if (DEBUG_VIEW_MANAGER) {
+                    log.putString("REGISTER", "" + REGISTER_COUNT);
+                    log.putString("CREATE", "" + CREATE_COUNT);
+                    log.putString("IS_PLAYING_COUNT", "" + IS_PLAYING_COUNT);
+                }
+                _reactEventEmitter.emit("libmpvLog", log);
             }
         });
         LibmpvWrapper.getInstance().play(playUrl);
     }
+
+    @ReactProp(name = "isPlaying")
+    public void setIsPlaying(SurfaceView view, boolean isPlaying) {
+        if (DEBUG_VIEW_MANAGER) {
+            IS_PLAYING_COUNT += 1;
+        }
+        WritableMap log = Arguments.createMap();
+        log.putString("method", "setIsPlaying");
+        log.putString("argument", isPlaying ? "true" : "false");
+        log.putString("playerState", LibmpvWrapper.getInstance().isPlaying() ? "play" : "paused");
+        if (LibmpvWrapper.getInstance().isCreated()) {
+            if (isPlaying && !LibmpvWrapper.getInstance().isPlaying()) {
+                LibmpvWrapper.getInstance().unpause();
+                log.putString("path", "Unpausing player");
+            } else if (!isPlaying && LibmpvWrapper.getInstance().isPlaying()) {
+                LibmpvWrapper.getInstance().pause();
+                log.putString("path", "Pausing player");
+            }
+        } else {
+            log.putString("path", "Instance not created");
+        }
+        if (_reactEventEmitter != null) {
+            _reactEventEmitter.emit("libmpvLog", log);
+        }
+    }
+
 }

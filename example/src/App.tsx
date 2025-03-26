@@ -29,17 +29,22 @@ function LandingPage({ navigation }) {
 function VideoPage({ navigation }) {
   let renderCount = Math.floor(Math.random() * 10000)
 
+  const [isPlaying, setIsPlaying] = React.useState(true);
+  const [cleanup, setCleanup] = React.useState(false);
+
   React.useEffect(() => {
-    navigation.addListener('beforeRemove', (e) => {
-      console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
-      console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
-      console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
-      Libmpv.cleanup()
-      return
-    })
+    if (!cleanup) {
+      navigation.addListener('beforeRemove', (e) => {
+        console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
+        console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
+        console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
+        Libmpv.cleanup()
+        return
+      })
+      setCleanup(true)
+    }
     renderCount += 1
   })
-
 
   function onLibmpvEvent(libmpvEvent) {
     console.log({ renderCount, libmpvEvent })
@@ -52,10 +57,12 @@ function VideoPage({ navigation }) {
   return (
     <View style={styles.container}>
       <LibmpvVideo
+        isPlaying={isPlaying}
         playUrl={videoUrl}
         onLibmpvEvent={onLibmpvEvent}
         onLibmpvLog={onLibmpvLog}
       ></LibmpvVideo>
+      <Button title="Toggle Playing" onPress={() => { setIsPlaying(!isPlaying) }} />
     </View>
   )
 }
