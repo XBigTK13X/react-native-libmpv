@@ -29,6 +29,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     private static int CREATE_COUNT = 0;
     private static int REGISTER_COUNT = 0;
     private static int IS_PLAYING_COUNT = 0;
+    private static int AUDIO_INDEX = 0;
+    private static int SUBTITLE_INDEX = 0;
 
     private DeviceEventManagerModule.RCTDeviceEventEmitter _reactEventEmitter;
 
@@ -130,6 +132,9 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
             }
         });
         LibmpvWrapper.getInstance().play(playUrl);
+        LibmpvWrapper.getInstance().setOptionString("vid", "1");
+        LibmpvWrapper.getInstance().setOptionString("aid", "" + (AUDIO_INDEX + 1));
+        LibmpvWrapper.getInstance().setOptionString("sid", "" + (SUBTITLE_INDEX + 1));
     }
 
     @ReactProp(name = "isPlaying")
@@ -157,4 +162,31 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
         }
     }
 
+    @ReactProp(name = "selectedAudioTrack")
+    public void selectAudioTrack(SurfaceView view, int audioTrackIndex) {
+        AUDIO_INDEX = audioTrackIndex;
+        if (LibmpvWrapper.getInstance().isCreated()) {
+            LibmpvWrapper.getInstance().setOptionString("aid", "" + (audioTrackIndex + 1));
+        }
+        if (_reactEventEmitter != null) {
+            WritableMap log = Arguments.createMap();
+            log.putString("method", "selectAudioTrack");
+            log.putString("argument", "" + audioTrackIndex);
+            _reactEventEmitter.emit("libmpvLog", log);
+        }
+    }
+
+    @ReactProp(name = "selectedSubtitleTrack")
+    public void selectSubtitleTrack(SurfaceView view, int subtitleTrackIndex) {
+        SUBTITLE_INDEX = subtitleTrackIndex;
+        if (LibmpvWrapper.getInstance().isCreated()) {
+            LibmpvWrapper.getInstance().setOptionString("sid", "" + (subtitleTrackIndex + 1));
+        }
+        if (_reactEventEmitter != null) {
+            WritableMap log = Arguments.createMap();
+            log.putString("method", "selectSubtitleTrack");
+            log.putString("argument", "" + subtitleTrackIndex);
+            _reactEventEmitter.emit("libmpvLog", log);
+        }
+    }
 }

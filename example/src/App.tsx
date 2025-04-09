@@ -51,9 +51,12 @@ function VideoPage({ navigation }) {
   }
 
   function onLibmpvLog(libmpvLog) {
+    if (libmpvLog.hasOwnProperty('method')) {
+      console.log("=-=-=-=-=-=-==- NATIVE METHOD =-=-=-=--==-=")
+    }
     console.log({ renderCount, libmpvLog })
   }
-  const videoUrl = 'http://tv-tuner.9914.us:5004/auto/v4.1'
+  const videoUrl = 'http://juggernaut.9914.us/anime/m/My Happy Marriage/Season 2/S02E007 - TBA.mkv'
   return (
     <View style={styles.container}>
       <LibmpvVideo
@@ -61,6 +64,8 @@ function VideoPage({ navigation }) {
         playUrl={videoUrl}
         onLibmpvEvent={onLibmpvEvent}
         onLibmpvLog={onLibmpvLog}
+        selectedAudioTrack={1}
+        selectedSubtitleTrack={1}
       ></LibmpvVideo>
       <Button title="Toggle Playing" onPress={() => { setIsPlaying(!isPlaying) }} />
     </View>

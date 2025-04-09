@@ -19,7 +19,9 @@ const LINKING_ERROR =
 type NativeProps = {
   playUrl: String,
   isPlaying: Boolean,
-  style: ViewStyle
+  style: ViewStyle,
+  selectedAudioTrack: Number,
+  selectedSubtitleTrack: Number
 };
 
 const ComponentName = 'LibmpvSurfaceView';
@@ -48,7 +50,9 @@ type LibmpvVideoProps = {
   isPlaying: boolean,
   onLibmpvEvent: (libmpvEvent: object) => void,
   onLibmpvLog: (livmpvLog: object) => void,
-  surfaceStyle: object
+  surfaceStyle: object,
+  selectedAudioTrack: number,
+  selectedSubtitleTrack: number
 }
 
 const styles = StyleSheet.create({
@@ -119,7 +123,9 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
   return <SurfaceView
     style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer}
     playUrl={props.playUrl}
-    isPlaying={props.isPlaying} />
+    isPlaying={props.isPlaying}
+    selectedAudioTrack={props.selectedAudioTrack}
+    selectedSubtitleTrack={props.selectedSubtitleTrack} />
 }
 
 export default Libmpv
