@@ -54,6 +54,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
         if (DEBUG_VIEW_MANAGER) {
             REGISTER_COUNT += 1;
         }
+
         LibmpvWrapper.getInstance().cleanup();
         ThemedReactContext reactContext = (ThemedReactContext) view.getContext();
         _reactEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);

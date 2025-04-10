@@ -25,6 +25,7 @@ public class LibmpvWrapper {
     private boolean _isPlaying;
     private MPVLib.EventObserver _eventObserver;
     private MPVLib.LogObserver _logObserver;
+    private String _mpvDirectory;
 
     private LibmpvWrapper() {
         _created = false;
@@ -54,6 +55,10 @@ public class LibmpvWrapper {
 
     public boolean isCreated() {
         return _created;
+    }
+
+    public void setMpvDirectory(String mpvDirectory) {
+        _mpvDirectory = mpvDirectory;
     }
 
     public boolean isPlaying() {
@@ -188,6 +193,8 @@ public class LibmpvWrapper {
         }
 
         this.setOptionString("tls-verify", "no");
+        this.setOptionString("config", "yes");
+        this.setOptionString("config-dir", _mpvDirectory);
         this.setOptionString("profile", "fast");
         this.setOptionString("vo", "gpu-next");
         this.setOptionString("ao", "audiotrack");

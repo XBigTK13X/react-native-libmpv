@@ -10,6 +10,8 @@ import {
 
 import { NativeEventEmitter, type EmitterSubscription } from 'react-native';
 
+import Blob from 'react-native-blob-util'
+
 const LINKING_ERROR =
   `The package 'react-native-libmpv' doesn't seem to be linked. Make sure: \n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
@@ -126,6 +128,33 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
     isPlaying={props.isPlaying}
     selectedAudioTrack={props.selectedAudioTrack}
     selectedSubtitleTrack={props.selectedSubtitleTrack} />
+}
+
+export function setupMpvDirectory() {
+  // Make sure that mpv will have these files available at runtime
+  // Otherwise SRT subtitles won't be able to render
+  const mpvDirPath = Blob.fs.dirs.DocumentDir + '/mpv';
+
+  return new Promise(resolve => {
+    return Blob.fs.isDir(mpvDirPath).then((dirExists: boolean) => {
+      if (dirExists) {
+        Libmpv.setMpvDirectory(mpvDirPath);
+        return resolve(mpvDirPath)
+      }
+      return Blob.fs.mkdir(mpvDirPath).then(() => {
+        const subtitleFontTtfFile = './asset/subfont.ttf'
+        const subtitleFontTtfLocalPath = mpvDirPath + '/subfont.ttf'
+        return Blob.fs.cp(subtitleFontTtfFile, subtitleFontTtfLocalPath)
+      }).then(() => {
+        const mpvConfFile = './asset/mpv.conf'
+        const mpvConfLocalPath = mpvDirPath + '/mpv.conf'
+        return Blob.fs.cp(mpvConfFile, mpvConfLocalPath)
+      }).then(() => {
+        Libmpv.setMpvDirectory(mpvDirPath);
+        resolve(mpvDirPath)
+      })
+    })
+  })
 }
 
 export default Libmpv

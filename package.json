@@ -157,5 +157,8 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "react-native-blob-util": "^0.21.2"
   }
 }
