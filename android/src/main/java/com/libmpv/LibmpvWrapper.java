@@ -1,10 +1,18 @@
 package com.libmpv;
 
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.File;
+
 import dev.jdtech.mpv.MPVLib;
 
+import android.os.Environment;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.content.Context;
+
+import android.util.Log;
 
 // https://github.com/jarnedemeulemeester/findroid/blob/main/player/video/src/main/java/dev/jdtech/jellyfin/mpv/MPVPlayer.kt
 // https://github.com/mpv-android/mpv-android/blob/7ae2b0fdc7f5a0948a1327191bf56798884f839b/app/src/main/java/is/xyz/mpv/MPVView.kt#L22
@@ -55,10 +63,6 @@ public class LibmpvWrapper {
 
     public boolean isCreated() {
         return _created;
-    }
-
-    public void setMpvDirectory(String mpvDirectory) {
-        _mpvDirectory = mpvDirectory;
     }
 
     public boolean isPlaying() {
@@ -186,10 +190,53 @@ public class LibmpvWrapper {
 
     }
 
+    public void createMpvDirectory() {
+        File mpvDir = new File(_applicationContext.getExternalFilesDir("mpv"), "mpv");
+        try {
+            _mpvDirectory = mpvDir.getAbsolutePath();
+            if (!mpvDir.exists()) {
+                if (!mpvDir.mkdirs()) {
+                    Log.e("react-native-libmpv", "exception", new IllegalArgumentException("Unable to create " + mpvDir));
+                }
+            } else {
+                return;
+            }
+            String mpvFontPath = mpvDir + "/subfont.ttf";
+            OutputStream fontOut = new FileOutputStream(mpvFontPath);
+            final InputStream subfontIn = _applicationContext.getAssets().open("subfont.ttf");
+            byte[] subfontBuf = new byte[1024];
+            int subfontLen;
+            while ((subfontLen = subfontIn.read(subfontBuf)) > 0) {
+                fontOut.write(subfontBuf, 0, subfontLen);
+            }
+            subfontIn.close();
+            fontOut.close();
+
+            String mpvConfPath = mpvDir + "/mpv.conf";
+            OutputStream confOut = new FileOutputStream(mpvConfPath);
+            final InputStream mpvConfIn = _applicationContext.getAssets().open("mpv.conf");
+            byte[] confBuf = new byte[1024];
+            int confLen;
+            while ((confLen = mpvConfIn.read(confBuf)) > 0) {
+                confOut.write(confBuf, 0, confLen);
+            }
+            mpvConfIn.close();
+            confOut.close();
+        } catch (Exception e) {
+            Log.e("react-native-libmpv", "Unable to create the directory " + mpvDir, e);
+        }
+    }
+
     // Modified from the Findroid defaults
     public void defaultSetup(SurfaceView surfaceView) {
         if (!this.create()) {
             return;
+        }
+
+        this.createMpvDirectory();
+
+        if (_mpvDirectory == null) {
+            Log.e("react-native-libmpv", "exception", new IllegalArgumentException("Unable to create the dir!"));
         }
 
         this.setOptionString("tls-verify", "no");
@@ -217,7 +264,9 @@ public class LibmpvWrapper {
 
         this.setOptionString("keep-open", "always");
         this.setOptionString("save-position-on-quit", "no");
-        this.setOptionString("sub-font-provider", "auto");
+        this.setOptionString("sub-font-provider", "none");
+        this.setOptionString("sub-font-dir", _mpvDirectory);
+
         this.setOptionString("ytdl", "no");
         this.setOptionString("msg-level", "all=no");
 

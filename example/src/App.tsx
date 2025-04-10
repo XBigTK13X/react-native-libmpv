@@ -31,7 +31,6 @@ function VideoPage({ navigation }) {
 
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [cleanup, setCleanup] = React.useState(false);
-  const [isReady, setIsReady] = React.useState(false);
 
   React.useEffect(() => {
     if (!cleanup) {
@@ -43,11 +42,6 @@ function VideoPage({ navigation }) {
         return
       })
       setCleanup(true)
-    }
-    if (!isReady) {
-      Libmpv.setupMpvDirectory();
-      console.log("Created the MPV directory");
-      setIsReady(true);
     }
     renderCount += 1
   })

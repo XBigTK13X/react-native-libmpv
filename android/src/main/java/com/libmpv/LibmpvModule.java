@@ -111,9 +111,4 @@ public class LibmpvModule extends ReactContextBaseJavaModule {
         promise.resolve(true);
     }
 
-    @ReactMethod
-    public void setMpvDirectory(String directoryPath, Promise promise) {
-        LibmpvWrapper.getInstance().setMpvDirectory(directoryPath);
-        promise.resolve(true);
-    }
 }

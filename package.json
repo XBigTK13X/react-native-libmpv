@@ -1,6 +1,6 @@
 {
   "name": "react-native-libmpv",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Libmpv wrapper GUI component",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -157,8 +157,5 @@
         }
       ]
     ]
-  },
-  "dependencies": {
-    "react-native-blob-util": "^0.21.2"
   }
 }
