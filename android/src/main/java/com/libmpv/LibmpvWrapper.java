@@ -273,6 +273,7 @@ public class LibmpvWrapper {
         this.init();
 
         this.attachSurface(surfaceView);
+
         // From the mpv repo: This forces mpv to render subs/osd/whatever into our surface even if it would ordinarily not
         this.setOptionString("force-window", "yes");
         this.setOptionString("vo", "gpu-next");
@@ -304,6 +305,12 @@ public class LibmpvWrapper {
         if (!_isPlaying) {
             this.command(new String[]{"set", "pause", "no"});
             _isPlaying = true;
+        }
+    }
+
+    public void seekToSeconds(Integer seconds) {
+        if (_created) {
+            this.command(new String[]{"seek", seconds + "", "absolute"});
         }
     }
 

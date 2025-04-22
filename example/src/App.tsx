@@ -31,6 +31,8 @@ function VideoPage({ navigation }) {
 
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [cleanup, setCleanup] = React.useState(false);
+  const [isReady, setIsReady] = React.useState(false);
+  const [seekSeconds, setSeekSeconds] = React.useState(0);
 
   React.useEffect(() => {
     if (!cleanup) {
@@ -43,6 +45,7 @@ function VideoPage({ navigation }) {
       })
       setCleanup(true)
     }
+    if (!isReady) { }
     renderCount += 1
   })
 
@@ -51,6 +54,12 @@ function VideoPage({ navigation }) {
   }
 
   function onLibmpvLog(libmpvLog) {
+    if (!isReady) {
+      setTimeout(() => {
+        setIsReady(true);
+        setSeekSeconds(300);
+      }, 2000);
+    }
     if (libmpvLog.hasOwnProperty('method')) {
       console.log("=-=-=-=-=-=-==- NATIVE METHOD =-=-=-=--==-=")
     }
@@ -66,6 +75,7 @@ function VideoPage({ navigation }) {
         onLibmpvLog={onLibmpvLog}
         selectedAudioTrack={1}
         selectedSubtitleTrack={1}
+        seekToSeconds={seekSeconds}
       ></LibmpvVideo>
       <Button title="Toggle Playing" onPress={() => { setIsPlaying(!isPlaying) }} />
     </View>

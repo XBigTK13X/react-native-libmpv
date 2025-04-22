@@ -21,7 +21,8 @@ type NativeProps = {
   isPlaying: Boolean,
   style: ViewStyle,
   selectedAudioTrack: Number,
-  selectedSubtitleTrack: Number
+  selectedSubtitleTrack: Number,
+  seekToSeconds: Number
 };
 
 const ComponentName = 'LibmpvSurfaceView';
@@ -52,7 +53,8 @@ type LibmpvVideoProps = {
   onLibmpvLog: (livmpvLog: object) => void,
   surfaceStyle: object,
   selectedAudioTrack: number,
-  selectedSubtitleTrack: number
+  selectedSubtitleTrack: number,
+  seekToSeconds: number
 }
 
 const styles = StyleSheet.create({
@@ -125,7 +127,9 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
     playUrl={props.playUrl}
     isPlaying={props.isPlaying}
     selectedAudioTrack={props.selectedAudioTrack}
-    selectedSubtitleTrack={props.selectedSubtitleTrack} />
+    selectedSubtitleTrack={props.selectedSubtitleTrack}
+    seekToSeconds={props.seekToSeconds}
+  />
 }
 
 export default Libmpv

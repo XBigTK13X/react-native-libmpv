@@ -190,4 +190,17 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
             _reactEventEmitter.emit("libmpvLog", log);
         }
     }
+
+    @ReactProp(name = "seekToSeconds")
+    public void seekTo(SurfaceView view, int seconds) {
+        if (LibmpvWrapper.getInstance().isCreated()) {
+            LibmpvWrapper.getInstance().seekToSeconds(seconds);
+        }
+        if (_reactEventEmitter != null) {
+            WritableMap log = Arguments.createMap();
+            log.putString("method", "seekToSeconds");
+            log.putString("argument", "" + seconds);
+            _reactEventEmitter.emit("libmpvLog", log);
+        }
+    }
 }
