@@ -9,6 +9,7 @@ import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.uimanager.annotations.ReactPropGroup;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import dev.jdtech.mpv.MPVLib;
@@ -50,7 +51,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     }
 
     @ReactProp(name = "playUrl")
-    public void register(SurfaceView view, String playUrl) {
+    public void playUrl(SurfaceView view, String playUrl) {
         if (DEBUG_VIEW_MANAGER) {
             REGISTER_COUNT += 1;
         }
@@ -58,6 +59,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
         LibmpvWrapper.getInstance().cleanup();
         ThemedReactContext reactContext = (ThemedReactContext) view.getContext();
         _reactEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+
         LibmpvWrapper.getInstance().defaultSetup(view);
         LibmpvWrapper.getInstance().addEventObserver(new MPVLib.EventObserver() {
             @Override
@@ -138,8 +140,20 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
         LibmpvWrapper.getInstance().setOptionString("sid", "" + (SUBTITLE_INDEX + 1));
     }
 
+    @ReactProp(name = "surfaceWidth")
+    public void setSurfaceWidth(SurfaceView view, int surfaceWidth) {
+        LibmpvWrapper.getInstance().setSurfaceWidth(surfaceWidth);
+    }
+
+    @ReactProp(name = "surfaceHeight")
+    public void setSurfaceHeight(SurfaceView view, int surfaceHeight
+    ) {
+        LibmpvWrapper.getInstance().setSurfaceHeight(surfaceHeight);
+    }
+
     @ReactProp(name = "isPlaying")
-    public void setIsPlaying(SurfaceView view, boolean isPlaying) {
+    public void setIsPlaying(SurfaceView view, boolean isPlaying
+    ) {
         if (DEBUG_VIEW_MANAGER) {
             IS_PLAYING_COUNT += 1;
         }
@@ -164,7 +178,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     }
 
     @ReactProp(name = "selectedAudioTrack")
-    public void selectAudioTrack(SurfaceView view, int audioTrackIndex) {
+    public void selectAudioTrack(SurfaceView view, int audioTrackIndex
+    ) {
         AUDIO_INDEX = audioTrackIndex;
         if (LibmpvWrapper.getInstance().isCreated()) {
             LibmpvWrapper.getInstance().setOptionString("aid", "" + (audioTrackIndex + 1));
@@ -178,7 +193,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     }
 
     @ReactProp(name = "selectedSubtitleTrack")
-    public void selectSubtitleTrack(SurfaceView view, int subtitleTrackIndex) {
+    public void selectSubtitleTrack(SurfaceView view, int subtitleTrackIndex
+    ) {
         SUBTITLE_INDEX = subtitleTrackIndex;
         if (LibmpvWrapper.getInstance().isCreated()) {
             LibmpvWrapper.getInstance().setOptionString("sid", "" + (subtitleTrackIndex + 1));
@@ -192,7 +208,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     }
 
     @ReactProp(name = "seekToSeconds")
-    public void seekTo(SurfaceView view, int seconds) {
+    public void seekTo(SurfaceView view, int seconds
+    ) {
         if (LibmpvWrapper.getInstance().isCreated()) {
             LibmpvWrapper.getInstance().seekToSeconds(seconds);
         }

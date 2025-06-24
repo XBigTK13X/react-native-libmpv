@@ -65,12 +65,14 @@ function VideoPage({ navigation }) {
     }
     console.log({ renderCount, libmpvLog })
   }
-  const videoUrl = 'http://juggernaut.9914.us/anime/m/My Happy Marriage/Season 2/S02E007 - TBA.mkv'
+  const videoUrl = 'http://magneto.9914.us/movie/disney-pixar/The Princess and the Frog (2009)/The Princess and the Frog (2009) Remux-2160p.mkv'
   return (
     <View style={styles.container}>
       <LibmpvVideo
         isPlaying={isPlaying}
         playUrl={videoUrl}
+        surfaceWidth={-1}
+        surfaceHeight={-1}
         onLibmpvEvent={onLibmpvEvent}
         onLibmpvLog={onLibmpvLog}
         selectedAudioTrack={1}

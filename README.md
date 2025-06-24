@@ -1,6 +1,8 @@
 # THIS IS A PLACEHOLDER AT THE MOMENT. NOT READY FOR USE.
 
-Even when it's ready, I only plan on supporting Android. iOS support contributions are welcome, but I have no way to test it.
+Even when it's ready, I only plan on supporting Android.
+
+iOS support contributions are welcome, but I have no way to test it.
 
 # react-native-libmpv
 

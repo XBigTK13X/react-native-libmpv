@@ -7,9 +7,9 @@ import java.io.File;
 
 import dev.jdtech.mpv.MPVLib;
 
-import android.os.Environment;
-import android.view.Surface;
 import android.view.SurfaceView;
+import android.view.SurfaceHolder;
+import android.view.Surface;
 import android.content.Context;
 
 import android.util.Log;
@@ -34,6 +34,9 @@ public class LibmpvWrapper {
     private MPVLib.EventObserver _eventObserver;
     private MPVLib.LogObserver _logObserver;
     private String _mpvDirectory;
+    private int _surfaceWidth = -1;
+    private int _surfaceHeight = -1;
+    private SurfaceView _surfaceView;
 
     private LibmpvWrapper() {
         _created = false;
@@ -179,7 +182,9 @@ public class LibmpvWrapper {
     public void attachSurface(SurfaceView surfaceView) {
         try {
             if (_created) {
-                MPVLib.attachSurface(surfaceView.getHolder().getSurface());
+                _surfaceView = surfaceView;
+                this.resizeSurface();
+                MPVLib.attachSurface(_surfaceView.getHolder().getSurface());
             }
         } catch (Exception e) {
             logException(e);
@@ -251,8 +256,8 @@ public class LibmpvWrapper {
         this.setOptionString("hwdec-codecs", "all");
         this.setOptionString("cache", "yes");
         this.setOptionString("cache-pause-initial", "yes");
-        this.setOptionString("demuxer-max-bytes", "64MiB");
-        this.setOptionString("demuxer-max-back-bytes", "64MiB");
+        this.setOptionString("demuxer-max-bytes", "256MiB");
+        this.setOptionString("demuxer-max-back-bytes", "256MiB");
 
         this.setOptionString("sub-scale-with-window", "yes");
         this.setOptionString("sub-use-margins", "no");
@@ -312,6 +317,22 @@ public class LibmpvWrapper {
         if (_created) {
             this.command(new String[]{"seek", seconds + "", "absolute"});
         }
+    }
+
+    public void resizeSurface() {
+        if (_surfaceHeight != -1 && _surfaceWidth != -1 && _surfaceView != null) {
+            _surfaceView.getHolder().setFixedSize(_surfaceWidth, _surfaceHeight);
+        }
+    }
+
+    public void setSurfaceWidth(int width) {
+        _surfaceWidth = width;
+        this.resizeSurface();
+    }
+
+    public void setSurfaceHeight(int height) {
+        _surfaceHeight = height;
+        this.resizeSurface();
     }
 
     public void detachSurface() {
