@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, Button, Text } from 'react-native';
+import { StyleSheet, View, Button, Modal, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LibmpvVideo, Libmpv } from 'react-native-libmpv';
@@ -9,19 +9,25 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'black'
   },
   box: {
     width: 60,
     height: 60,
     marginVertical: 20,
+  },
+  button: {
+    flex: 1
   }
 });
 
 function LandingPage({ navigation }) {
   return (
-    <View style={styles.container}>
-      <Button onPress={() => { navigation.navigate('Video') }} title="Play Video" />
-    </View>
+    <Modal style={styles.container}>
+      <View style={styles.button}>
+        <Button onPress={() => { navigation.navigate('Video') }} title="Play Video" />
+      </View>
+    </Modal>
   )
 }
 
@@ -65,9 +71,9 @@ function VideoPage({ navigation }) {
     }
     console.log({ renderCount, libmpvLog })
   }
-  const videoUrl = 'http://magneto.9914.us/movie/disney-pixar/The Princess and the Frog (2009)/The Princess and the Frog (2009) Remux-2160p.mkv'
+  const videoUrl = 'http://juggernaut.9914.us/tv/cartoon/b/Bluey (2018) [Australia]/Season 1/S01E001 - Magic Xylophone.mkv'
   return (
-    <View style={styles.container}>
+    <Modal style={styles.container} onRequestClose={() => { navigation.goBack() }}>
       <LibmpvVideo
         isPlaying={isPlaying}
         playUrl={videoUrl}
@@ -75,12 +81,15 @@ function VideoPage({ navigation }) {
         surfaceHeight={-1}
         onLibmpvEvent={onLibmpvEvent}
         onLibmpvLog={onLibmpvLog}
-        selectedAudioTrack={1}
-        selectedSubtitleTrack={1}
+        selectedAudioTrack={0}
+        selectedSubtitleTrack={0}
         seekToSeconds={seekSeconds}
-      ></LibmpvVideo>
-      <Button title="Toggle Playing" onPress={() => { setIsPlaying(!isPlaying) }} />
-    </View>
+      />
+      <TouchableOpacity
+        transparent
+        style={styles.button}
+        onPress={() => { setIsPlaying(!isPlaying) }} />
+    </Modal>
   )
 }
 
