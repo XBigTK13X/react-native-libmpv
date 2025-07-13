@@ -151,8 +151,12 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
 
     @ReactProp(name = "playUrl")
     public void setPlayUrl(SurfaceView view, String playUrl) {
+        boolean recreateMpv = false;
+        if (PLAY_URL != null && !PLAY_URL.equalsIgnoreCase(playUrl)) {
+            recreateMpv = true;
+        }
         PLAY_URL = playUrl;
-        if (LibmpvWrapper.getInstance().isCreated()) {
+        if (LibmpvWrapper.getInstance().isCreated() && !recreateMpv) {
             LibmpvWrapper.getInstance().play(PLAY_URL);
         } else {
             attemptCreation(view);
@@ -176,7 +180,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
         if (_reactEventEmitter != null) {
             WritableMap log = Arguments.createMap();
             log.putString("method", "setSurfaceWidth");
-            log.putString("argument", "" + surfaceWidth);
+            log.putString("argument", "" + SURFACE_WIDTH);
             _reactEventEmitter.emit("libmpvLog", log);
         }
     }
@@ -186,14 +190,14 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     ) {
         SURFACE_HEIGHT = surfaceHeight;
         if (LibmpvWrapper.getInstance().isCreated()) {
-            LibmpvWrapper.getInstance().setSurfaceHeight(SURFACE_WIDTH);
+            LibmpvWrapper.getInstance().setSurfaceHeight(SURFACE_HEIGHT);
         } else {
             attemptCreation(view);
         }
         if (_reactEventEmitter != null) {
             WritableMap log = Arguments.createMap();
             log.putString("method", "setSurfaceHeight");
-            log.putString("argument", "" + surfaceHeight);
+            log.putString("argument", "" + SURFACE_HEIGHT);
             _reactEventEmitter.emit("libmpvLog", log);
         }
     }

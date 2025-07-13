@@ -183,7 +183,7 @@ public class LibmpvWrapper {
         try {
             if (_created) {
                 _surfaceView = surfaceView;
-                this.resizeSurface();
+                this.applySurfaceDimensions();
                 MPVLib.attachSurface(_surfaceView.getHolder().getSurface());
             }
         } catch (Exception e) {
@@ -331,20 +331,22 @@ public class LibmpvWrapper {
         }
     }
 
-    public void resizeSurface() {
-        if (_surfaceHeight != -1 && _surfaceWidth != -1 && _surfaceView != null) {
+    private void applySurfaceDimensions() {
+        if (_surfaceHeight != -1
+                && _surfaceWidth != -1
+                && _surfaceView != null) {
             _surfaceView.getHolder().setFixedSize(_surfaceWidth, _surfaceHeight);
         }
     }
 
     public void setSurfaceWidth(int width) {
         _surfaceWidth = width;
-        this.resizeSurface();
+        this.applySurfaceDimensions();
     }
 
     public void setSurfaceHeight(int height) {
         _surfaceHeight = height;
-        this.resizeSurface();
+        this.applySurfaceDimensions();
     }
 
     public void detachSurface() {
