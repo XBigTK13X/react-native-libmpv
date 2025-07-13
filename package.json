@@ -1,6 +1,6 @@
 {
   "name": "react-native-libmpv",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "Libmpv wrapper GUI component",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

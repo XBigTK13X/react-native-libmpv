@@ -132,7 +132,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                     _reactEventEmitter.emit("libmpvLog", log);
                 }
             });
-            String options = "vid=1";
+            String options = "vid=1,pause=no";
             if (AUDIO_INDEX == -1) {
                 options += ",aid=no";
             } else {
