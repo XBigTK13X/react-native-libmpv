@@ -81,7 +81,7 @@ function VideoPage({ navigation }) {
           onLibmpvEvent={onLibmpvEvent}
           onLibmpvLog={onLibmpvLog}
           selectedAudioTrack={0}
-          selectedSubtitleTrack={0}
+          selectedSubtitleTrack={-1}
           seekToSeconds={seekSeconds}
         />
       </TouchableOpacity>

@@ -133,8 +133,17 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 }
             });
             String options = "vid=1";
-            options += ",aid=" + (AUDIO_INDEX + 1);
-            options += ",sid=" + (SUBTITLE_INDEX + 1);
+            if (AUDIO_INDEX == -1) {
+                options += ",aid=no";
+            } else {
+                options += ",aid=" + (AUDIO_INDEX + 1);
+            }
+            if (SUBTITLE_INDEX == -1) {
+                options += ",sid=no";
+            } else {
+                options += ",sid=" + (SUBTITLE_INDEX + 1);
+            }
+
             LibmpvWrapper.getInstance().play(PLAY_URL, options);
             setIsPlaying(view, true);
         }
@@ -194,7 +203,11 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     ) {
         AUDIO_INDEX = audioTrackIndex;
         if (LibmpvWrapper.getInstance().isCreated()) {
-            LibmpvWrapper.getInstance().setOptionString("aid", "" + (AUDIO_INDEX + 1));
+            String mpvIndex = "no";
+            if (AUDIO_INDEX != -1) {
+                mpvIndex = "" + (AUDIO_INDEX + 1);
+            }
+            LibmpvWrapper.getInstance().setOptionString("aid", mpvIndex);
         } else {
             attemptCreation(view);
         }
@@ -211,7 +224,11 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     ) {
         SUBTITLE_INDEX = subtitleTrackIndex;
         if (LibmpvWrapper.getInstance().isCreated()) {
-            LibmpvWrapper.getInstance().setOptionString("sid", "" + (SUBTITLE_INDEX + 1));
+            String mpvIndex = "no";
+            if (SUBTITLE_INDEX != -1) {
+                mpvIndex = "" + (SUBTITLE_INDEX + 1);
+            }
+            LibmpvWrapper.getInstance().setOptionString("sid", mpvIndex);
         } else {
             attemptCreation(view);
         }
