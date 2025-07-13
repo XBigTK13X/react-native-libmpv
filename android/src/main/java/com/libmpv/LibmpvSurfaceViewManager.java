@@ -145,7 +145,6 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
             }
 
             LibmpvWrapper.getInstance().play(PLAY_URL, options);
-            setIsPlaying(view, true);
         }
     }
 
@@ -248,8 +247,6 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     public void seekTo(SurfaceView view, int seconds) {
         if (LibmpvWrapper.getInstance().isCreated()) {
             LibmpvWrapper.getInstance().seekToSeconds(seconds);
-        } else {
-            attemptCreation(view);
         }
         if (_reactEventEmitter != null) {
             WritableMap log = Arguments.createMap();
