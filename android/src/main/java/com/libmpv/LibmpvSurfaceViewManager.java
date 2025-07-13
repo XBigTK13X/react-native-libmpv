@@ -132,7 +132,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                     _reactEventEmitter.emit("libmpvLog", log);
                 }
             });
-            String options = "vid=1,pause=no";
+            String options = "vid=1";
             if (AUDIO_INDEX == -1) {
                 options += ",aid=no";
             } else {
@@ -261,8 +261,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
         WritableMap log = Arguments.createMap();
         log.putString("method", "setIsPlaying");
         log.putString("argument", isPlaying ? "true" : "false");
-        log.putString("playerState", LibmpvWrapper.getInstance().isPlaying() ? "play" : "paused");
-        if (LibmpvWrapper.getInstance().isCreated()) {
+        if (LibmpvWrapper.getInstance().isCreated() && LibmpvWrapper.getInstance().hasPlayedOnce()) {
+            log.putString("playerState", LibmpvWrapper.getInstance().isPlaying() ? "play" : "paused");
             if (isPlaying && !LibmpvWrapper.getInstance().isPlaying()) {
                 LibmpvWrapper.getInstance().unpause();
                 log.putString("path", "Unpausing player");
@@ -272,6 +272,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
             }
         } else {
             log.putString("path", "Instance not created");
+            attemptCreation(view);
         }
         if (_reactEventEmitter != null) {
             _reactEventEmitter.emit("libmpvLog", log);

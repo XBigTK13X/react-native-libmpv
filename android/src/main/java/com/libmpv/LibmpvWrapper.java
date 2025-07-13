@@ -31,6 +31,7 @@ public class LibmpvWrapper {
     private Context _applicationContext;
     private boolean _created;
     private boolean _isPlaying;
+    private boolean _hasPlayedOnce;
     private MPVLib.EventObserver _eventObserver;
     private MPVLib.LogObserver _logObserver;
     private String _mpvDirectory;
@@ -41,6 +42,7 @@ public class LibmpvWrapper {
     private LibmpvWrapper() {
         _created = false;
         _isPlaying = false;
+        _hasPlayedOnce = false;
     }
 
     public void setContext(Context applicationContext) {
@@ -70,6 +72,10 @@ public class LibmpvWrapper {
 
     public boolean isPlaying() {
         return _isPlaying;
+    }
+
+    public boolean hasPlayedOnce() {
+        return _hasPlayedOnce;
     }
 
     private void logException(Exception exception) {
@@ -292,6 +298,8 @@ public class LibmpvWrapper {
     public void play(String url) {
         if (!_isPlaying) {
             this.command(new String[]{"loadfile", url});
+            this.command(new String[]{"set", "pause", "no"});
+            _hasPlayedOnce = true;
             _isPlaying = true;
         }
     }
@@ -299,11 +307,16 @@ public class LibmpvWrapper {
     public void play(String url, String options) {
         if (!_isPlaying) {
             this.command(new String[]{"loadfile", url, "replace", "0", options});
+            this.command(new String[]{"set", "pause", "no"});
+            _hasPlayedOnce = true;
             _isPlaying = true;
         }
     }
 
     public void pauseOrUnpause() {
+        if (!hasPlayedOnce()) {
+            return;
+        }
         if (_isPlaying) {
             this.pause();
         } else {
@@ -312,6 +325,9 @@ public class LibmpvWrapper {
     }
 
     public void pause() {
+        if (!hasPlayedOnce()) {
+            return;
+        }
         if (_isPlaying) {
             this.command(new String[]{"set", "pause", "yes"});
             _isPlaying = false;
@@ -319,6 +335,9 @@ public class LibmpvWrapper {
     }
 
     public void unpause() {
+        if (!hasPlayedOnce()) {
+            return;
+        }
         if (!_isPlaying) {
             this.command(new String[]{"set", "pause", "no"});
             _isPlaying = true;
