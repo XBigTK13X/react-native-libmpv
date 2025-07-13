@@ -247,11 +247,11 @@ public class LibmpvWrapper {
         this.setOptionString("tls-verify", "no");
         this.setOptionString("config", "yes");
         this.setOptionString("config-dir", _mpvDirectory);
-        this.setOptionString("profile", "fast");
         this.setOptionString("vo", "gpu-next");
         this.setOptionString("ao", "audiotrack");
         this.setOptionString("vf", "no");
         this.setOptionString("af", "no");
+        this.setOptionString("profile", "fast");
         this.setOptionString("gpu-context", "android");
         this.setOptionString("opengl-es", "yes");
         this.setOptionString("hwdec", "auto");

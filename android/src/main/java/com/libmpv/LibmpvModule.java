@@ -52,8 +52,9 @@ public class LibmpvModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void command(String[] orders, Promise promise) {
-        LibmpvWrapper.getInstance().command(orders);
+    public void command(String orders, Promise promise) {
+        String[] splitOrders = orders.split("\\|");
+        LibmpvWrapper.getInstance().command(splitOrders);
         promise.resolve(true);
     }
 
