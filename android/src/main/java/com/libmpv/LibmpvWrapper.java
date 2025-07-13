@@ -250,21 +250,26 @@ public class LibmpvWrapper {
         this.setOptionString("profile", "fast");
         this.setOptionString("vo", "gpu-next");
         this.setOptionString("ao", "audiotrack");
+        this.setOptionString("vf", "no");
+        this.setOptionString("af", "no");
         this.setOptionString("gpu-context", "android");
         this.setOptionString("opengl-es", "yes");
-        this.setOptionString("hwdec", "mediacodec-copy");
+        this.setOptionString("hwdec", "auto");
         this.setOptionString("hwdec-codecs", "all");
         this.setOptionString("cache", "yes");
         this.setOptionString("cache-pause-initial", "yes");
         this.setOptionString("demuxer-max-bytes", "256MiB");
         this.setOptionString("demuxer-max-back-bytes", "256MiB");
+        this.setOptionString("cache-secs", "5");
+        this.setOptionString("demuxer-readahead-secs", "5");
 
         this.setOptionString("sub-scale-with-window", "yes");
         this.setOptionString("sub-use-margins", "no");
 
         this.setOptionString("alang", "");
         this.setOptionString("slang", "");
-        // from the mpv repo: would crash before the surface is attached
+
+        // from the mpv repo: Without this mpv would crash before the surface is attached
         this.setOptionString("force-window", "no");
 
         this.setOptionString("keep-open", "always");
@@ -287,6 +292,13 @@ public class LibmpvWrapper {
     public void play(String url) {
         if (!_isPlaying) {
             this.command(new String[]{"loadfile", url});
+            _isPlaying = true;
+        }
+    }
+
+    public void play(String url, String options) {
+        if (!_isPlaying) {
+            this.command(new String[]{"loadfile", url, "replace", "0", options});
             _isPlaying = true;
         }
     }

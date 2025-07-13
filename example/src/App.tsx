@@ -17,7 +17,8 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   button: {
-    flex: 1
+    flex: 1,
+    backgroundColor: 'black'
   }
 });
 
@@ -37,8 +38,7 @@ function VideoPage({ navigation }) {
 
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [cleanup, setCleanup] = React.useState(false);
-  const [isReady, setIsReady] = React.useState(false);
-  const [seekSeconds, setSeekSeconds] = React.useState(0);
+  const [seekSeconds, setSeekSeconds] = React.useState(0)
 
   React.useEffect(() => {
     if (!cleanup) {
@@ -47,11 +47,9 @@ function VideoPage({ navigation }) {
         console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
         console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
         Libmpv.cleanup()
-        return
       })
       setCleanup(true)
     }
-    if (!isReady) { }
     renderCount += 1
   })
 
@@ -60,35 +58,33 @@ function VideoPage({ navigation }) {
   }
 
   function onLibmpvLog(libmpvLog) {
-    if (!isReady) {
-      setTimeout(() => {
-        setIsReady(true);
-        setSeekSeconds(300);
-      }, 2000);
-    }
     if (libmpvLog.hasOwnProperty('method')) {
       console.log("=-=-=-=-=-=-==- NATIVE METHOD =-=-=-=--==-=")
+    }
+    if (seekSeconds === 0 && libmpvLog.text && libmpvLog.text.indexOf('audio ready') !== -1) {
+      setSeekSeconds(300)
     }
     console.log({ renderCount, libmpvLog })
   }
   const videoUrl = 'http://juggernaut.9914.us/tv/cartoon/b/Bluey (2018) [Australia]/Season 1/S01E001 - Magic Xylophone.mkv'
   return (
     <Modal style={styles.container} onRequestClose={() => { navigation.goBack() }}>
-      <LibmpvVideo
-        isPlaying={isPlaying}
-        playUrl={videoUrl}
-        surfaceWidth={-1}
-        surfaceHeight={-1}
-        onLibmpvEvent={onLibmpvEvent}
-        onLibmpvLog={onLibmpvLog}
-        selectedAudioTrack={0}
-        selectedSubtitleTrack={0}
-        seekToSeconds={seekSeconds}
-      />
       <TouchableOpacity
         transparent
         style={styles.button}
-        onPress={() => { setIsPlaying(!isPlaying) }} />
+        onPress={() => { setIsPlaying(!isPlaying) }} >
+        <LibmpvVideo
+          isPlaying={isPlaying}
+          playUrl={videoUrl}
+          surfaceWidth={1920}
+          surfaceHeight={1080}
+          onLibmpvEvent={onLibmpvEvent}
+          onLibmpvLog={onLibmpvLog}
+          selectedAudioTrack={0}
+          selectedSubtitleTrack={0}
+          seekToSeconds={seekSeconds}
+        />
+      </TouchableOpacity>
     </Modal>
   )
 }

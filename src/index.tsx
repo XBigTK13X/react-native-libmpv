@@ -101,13 +101,13 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
           if (libmpvEvent.eventId) {
             libmpvEvent.value = parseInt(libmpvEvent.eventId, 10)
           }
-          if (libmpvEvent.kind === 'long' || libmpvEvent.kind === 'double') {
+          else if (libmpvEvent.kind === 'long' || libmpvEvent.kind === 'double') {
             libmpvEvent.value = Number(libmpvEvent.value)
           }
-          if (libmpvEvent.kind === 'boolean') {
+          else if (libmpvEvent.kind === 'boolean') {
             libmpvEvent.value = libmpvEvent.value === 'true'
           }
-          if (libmpvEvent.hasOwnProperty('eventId')) {
+          else if (libmpvEvent.hasOwnProperty('eventId')) {
             libmpvEvent.eventKind = EVENT_LOOKUP[libmpvEvent.eventId]
           }
           return props.onLibmpvEvent(libmpvEvent)
