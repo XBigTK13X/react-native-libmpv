@@ -1,5 +1,7 @@
 package com.libmpv;
 
+import com.libmpv.LibmpvSurfaceView;
+
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -59,13 +61,13 @@ public class LibmpvModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void attachSurface(SurfaceView surfaceView, Promise promise) {
+    public void attachSurface(LibmpvSurfaceView surfaceView, Promise promise) {
         LibmpvWrapper.getInstance().attachSurface(surfaceView);
         promise.resolve(true);
     }
 
     @ReactMethod
-    public void defaultSetup(SurfaceView surfaceView, Promise promise) {
+    public void defaultSetup(LibmpvSurfaceView surfaceView, Promise promise) {
         LibmpvWrapper.getInstance().defaultSetup(surfaceView);
         promise.resolve(true);
     }

@@ -1,18 +1,19 @@
 package com.libmpv;
 
+import dev.jdtech.mpv.MPVLib;
+
+import com.libmpv.LibmpvSurfaceView;
+
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.File;
 
-import dev.jdtech.mpv.MPVLib;
-
-import android.view.SurfaceView;
-import android.view.SurfaceHolder;
-import android.view.Surface;
 import android.content.Context;
-
 import android.util.Log;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
 // https://github.com/jarnedemeulemeester/findroid/blob/main/player/video/src/main/java/dev/jdtech/jellyfin/mpv/MPVPlayer.kt
 // https://github.com/mpv-android/mpv-android/blob/7ae2b0fdc7f5a0948a1327191bf56798884f839b/app/src/main/java/is/xyz/mpv/MPVView.kt#L22
@@ -37,7 +38,7 @@ public class LibmpvWrapper {
     private String _mpvDirectory;
     private int _surfaceWidth = -1;
     private int _surfaceHeight = -1;
-    private SurfaceView _surfaceView;
+    private LibmpvSurfaceView _surfaceView;
 
     private LibmpvWrapper() {
         _created = false;
@@ -115,7 +116,7 @@ public class LibmpvWrapper {
         }
     }
 
-    public void defaultSetup(SurfaceView surfaceView) {
+    public void defaultSetup(LibmpvSurfaceView surfaceView) {
         if (!this.create()) {
             return;
         }
@@ -140,12 +141,13 @@ public class LibmpvWrapper {
         this.setOptionString("hwdec", "auto");
         this.setOptionString("hwdec-codecs", "all");
 
-        this.setOptionString("vo", "gpu-next");
+        this.setOptionString("vo", "gpu");
         this.setOptionString("vf", "no");
         this.setOptionString("gpu-context", "android");
         this.setOptionString("opengl-es", "yes");
         this.setOptionString("video-sync", "audio");
-        this.setOptionString("opengl-swapinterval", "1");
+        this.setOptionString("opengl-swapinterval", "1"); // Allow video-sync to work by forcing vsync
+        this.setOptionString("force-window", "yes"); // Force subtitles to render on the surface view
 
         this.setOptionString("ao", "audiotrack");
         this.setOptionString("af", "no");
@@ -164,12 +166,9 @@ public class LibmpvWrapper {
         this.setOptionString("cache-secs", "5");
         this.setOptionString("demuxer-readahead-secs", "5");
 
-        // force-window makes mpv render subs on the video
-        // it needs to be turned off until after the surface is attached
-        this.setOptionString("force-window", "no");
-        this.init();
         this.attachSurface(surfaceView);
-        this.setOptionString("force-window", "yes");
+        this.init();
+
         this.setOptionString("pause", "no");
     }
 
@@ -280,7 +279,7 @@ public class LibmpvWrapper {
         }
     }
 
-    public void attachSurface(SurfaceView surfaceView) {
+    public void attachSurface(LibmpvSurfaceView surfaceView) {
         try {
             if (_created) {
                 _surfaceView = surfaceView;

@@ -1,7 +1,6 @@
 package com.libmpv;
 
-import android.graphics.Color;
-import android.view.SurfaceView;
+import com.libmpv.LibmpvSurfaceView;
 
 import androidx.annotation.NonNull;
 
@@ -22,15 +21,15 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 // https://github.com/facebook/react-native/blob/main/packages/react-native/ReactAndroid/src/main/java/com/facebook/react/uimanager/UIManagerModuleConstants.java
 // An example video player using VLC
 // https://github.com/razorRun/react-native-vlc-media-player/blob/master/android/src/main/java/com/yuanzhou/vlc/vlcplayer/ReactVlcPlayerViewManager.java
-public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
+public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceView> {
 
     public static final String REACT_CLASS = "LibmpvSurfaceView";
 
-    private String PLAY_URL = null;
-    private Integer SURFACE_WIDTH = null;
-    private Integer SURFACE_HEIGHT = null;
-    private Integer AUDIO_INDEX = null;
-    private Integer SUBTITLE_INDEX = null;
+    private String _playUrl = null;
+    private Integer _surfaceWidth = null;
+    private Integer _surfaceHeight = null;
+    private Integer _audioIndex = null;
+    private Integer _subtitleIndex = null;
     private DeviceEventManagerModule.RCTDeviceEventEmitter _reactEventEmitter = null;
 
     @Override
@@ -41,33 +40,25 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
 
     @Override
     @NonNull
-    public SurfaceView createViewInstance(ThemedReactContext reactContext) {
-        return new SurfaceView(reactContext);
+    public LibmpvSurfaceView createViewInstance(ThemedReactContext reactContext) {
+        _reactEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        return new LibmpvSurfaceView(reactContext);
     }
 
-    private void attemptCreation(SurfaceView view) {
-        if (_reactEventEmitter == null) {
-            ThemedReactContext reactContext = (ThemedReactContext) view.getContext();
-            _reactEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
-
-            WritableMap log = Arguments.createMap();
-            log.putString("method", "attemptCreation");
-            log.putString("argument", "make the event emitter");
-            _reactEventEmitter.emit("libmpvLog", log);
-        }
-        if (PLAY_URL != null
-                && SURFACE_WIDTH != null
-                && SURFACE_HEIGHT != null
-                && AUDIO_INDEX != null
-                && SUBTITLE_INDEX != null) {
-
+    private void attemptCreation(LibmpvSurfaceView view) {
+        boolean allReactPropsHandled = _playUrl != null
+                && _surfaceWidth != null
+                && _surfaceHeight != null
+                && _audioIndex != null
+                && _subtitleIndex != null;
+        if (allReactPropsHandled) {
             WritableMap log = Arguments.createMap();
             log.putString("method", "attemptCreation");
             log.putString("argument", "initialize the MPV instance");
             _reactEventEmitter.emit("libmpvLog", log);
 
             LibmpvWrapper.getInstance().cleanup();
-            view.getHolder().setFixedSize(SURFACE_WIDTH, SURFACE_HEIGHT);
+            view.getHolder().setFixedSize(_surfaceWidth, _surfaceHeight);
             LibmpvWrapper.getInstance().defaultSetup(view);
             LibmpvWrapper.getInstance().addEventObserver(new MPVLib.EventObserver() {
                 @Override
@@ -133,30 +124,30 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
                 }
             });
             String options = "vid=1";
-            if (AUDIO_INDEX == -1) {
+            if (_audioIndex == -1) {
                 options += ",aid=no";
             } else {
-                options += ",aid=" + (AUDIO_INDEX + 1);
+                options += ",aid=" + (_audioIndex + 1);
             }
-            if (SUBTITLE_INDEX == -1) {
+            if (_subtitleIndex == -1) {
                 options += ",sid=no";
             } else {
-                options += ",sid=" + (SUBTITLE_INDEX + 1);
+                options += ",sid=" + (_subtitleIndex + 1);
             }
 
-            LibmpvWrapper.getInstance().play(PLAY_URL, options);
+            LibmpvWrapper.getInstance().play(_playUrl, options);
         }
     }
 
     @ReactProp(name = "playUrl")
-    public void setPlayUrl(SurfaceView view, String playUrl) {
+    public void setPlayUrl(LibmpvSurfaceView view, String playUrl) {
         boolean recreateMpv = false;
-        if (PLAY_URL != null && !PLAY_URL.equalsIgnoreCase(playUrl)) {
+        if (_playUrl != null && !_playUrl.equalsIgnoreCase(playUrl)) {
             recreateMpv = true;
         }
-        PLAY_URL = playUrl;
+        _playUrl = playUrl;
         if (LibmpvWrapper.getInstance().isCreated() && !recreateMpv) {
-            LibmpvWrapper.getInstance().play(PLAY_URL);
+            LibmpvWrapper.getInstance().play(_playUrl);
         } else {
             attemptCreation(view);
         }
@@ -169,46 +160,46 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     }
 
     @ReactProp(name = "surfaceWidth")
-    public void setSurfaceWidth(SurfaceView view, int surfaceWidth) {
-        SURFACE_WIDTH = surfaceWidth;
+    public void setSurfaceWidth(LibmpvSurfaceView view, int surfaceWidth) {
+        _surfaceWidth = surfaceWidth;
         if (LibmpvWrapper.getInstance().isCreated()) {
-            LibmpvWrapper.getInstance().setSurfaceWidth(SURFACE_WIDTH);
+            LibmpvWrapper.getInstance().setSurfaceWidth(_surfaceWidth);
         } else {
             attemptCreation(view);
         }
         if (_reactEventEmitter != null) {
             WritableMap log = Arguments.createMap();
             log.putString("method", "setSurfaceWidth");
-            log.putString("argument", "" + SURFACE_WIDTH);
+            log.putString("argument", "" + _surfaceWidth);
             _reactEventEmitter.emit("libmpvLog", log);
         }
     }
 
     @ReactProp(name = "surfaceHeight")
-    public void setSurfaceHeight(SurfaceView view, int surfaceHeight
+    public void setSurfaceHeight(LibmpvSurfaceView view, int surfaceHeight
     ) {
-        SURFACE_HEIGHT = surfaceHeight;
+        _surfaceHeight = surfaceHeight;
         if (LibmpvWrapper.getInstance().isCreated()) {
-            LibmpvWrapper.getInstance().setSurfaceHeight(SURFACE_HEIGHT);
+            LibmpvWrapper.getInstance().setSurfaceHeight(_surfaceHeight);
         } else {
             attemptCreation(view);
         }
         if (_reactEventEmitter != null) {
             WritableMap log = Arguments.createMap();
             log.putString("method", "setSurfaceHeight");
-            log.putString("argument", "" + SURFACE_HEIGHT);
+            log.putString("argument", "" + _surfaceHeight);
             _reactEventEmitter.emit("libmpvLog", log);
         }
     }
 
     @ReactProp(name = "selectedAudioTrack")
-    public void selectAudioTrack(SurfaceView view, int audioTrackIndex
+    public void selectAudioTrack(LibmpvSurfaceView view, int audioTrackIndex
     ) {
-        AUDIO_INDEX = audioTrackIndex;
+        _audioIndex = audioTrackIndex;
         if (LibmpvWrapper.getInstance().isCreated()) {
             String mpvIndex = "no";
-            if (AUDIO_INDEX != -1) {
-                mpvIndex = "" + (AUDIO_INDEX + 1);
+            if (_audioIndex != -1) {
+                mpvIndex = "" + (_audioIndex + 1);
             }
             LibmpvWrapper.getInstance().setOptionString("aid", mpvIndex);
         } else {
@@ -217,19 +208,19 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
         if (_reactEventEmitter != null) {
             WritableMap log = Arguments.createMap();
             log.putString("method", "selectAudioTrack");
-            log.putString("argument", "" + AUDIO_INDEX);
+            log.putString("argument", "" + _audioIndex);
             _reactEventEmitter.emit("libmpvLog", log);
         }
     }
 
     @ReactProp(name = "selectedSubtitleTrack")
-    public void selectSubtitleTrack(SurfaceView view, int subtitleTrackIndex
+    public void selectSubtitleTrack(LibmpvSurfaceView view, int subtitleTrackIndex
     ) {
-        SUBTITLE_INDEX = subtitleTrackIndex;
+        _subtitleIndex = subtitleTrackIndex;
         if (LibmpvWrapper.getInstance().isCreated()) {
             String mpvIndex = "no";
-            if (SUBTITLE_INDEX != -1) {
-                mpvIndex = "" + (SUBTITLE_INDEX + 1);
+            if (_subtitleIndex != -1) {
+                mpvIndex = "" + (_subtitleIndex + 1);
             }
             LibmpvWrapper.getInstance().setOptionString("sid", mpvIndex);
         } else {
@@ -238,13 +229,13 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
         if (_reactEventEmitter != null) {
             WritableMap log = Arguments.createMap();
             log.putString("method", "selectSubtitleTrack");
-            log.putString("argument", "" + SUBTITLE_INDEX);
+            log.putString("argument", "" + _subtitleIndex);
             _reactEventEmitter.emit("libmpvLog", log);
         }
     }
 
     @ReactProp(name = "seekToSeconds")
-    public void seekTo(SurfaceView view, int seconds) {
+    public void seekTo(LibmpvSurfaceView view, int seconds) {
         if (LibmpvWrapper.getInstance().isCreated()) {
             LibmpvWrapper.getInstance().seekToSeconds(seconds);
         }
@@ -257,7 +248,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
     }
 
     @ReactProp(name = "isPlaying")
-    public void setIsPlaying(SurfaceView view, boolean isPlaying) {
+    public void setIsPlaying(LibmpvSurfaceView view, boolean isPlaying) {
         WritableMap log = Arguments.createMap();
         log.putString("method", "setIsPlaying");
         log.putString("argument", isPlaying ? "true" : "false");
