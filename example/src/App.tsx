@@ -1,10 +1,19 @@
 import * as React from 'react';
-import { StyleSheet, View, Button, Modal, TouchableOpacity } from 'react-native';
+import { View, Button, Modal, TouchableOpacity, AppState } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LibmpvVideo, Libmpv } from 'react-native-libmpv';
 
-const styles = StyleSheet.create({
+const styles = {
+  homePage: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'black'
+  },
+  homeButton: {
+    width: '75%',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -20,22 +29,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'black'
   }
-});
+}
 
 function LandingPage({ navigation }) {
   return (
-    <Modal style={styles.container}>
-      <View style={styles.button}>
+    <View style={styles.homePage}>
+      <View style={styles.homeButton}>
         <Button onPress={() => { navigation.navigate('Video') }} title="Play Video" />
       </View>
-    </Modal>
+    </View>
   )
 }
 
 
 function VideoPage({ navigation }) {
-  let renderCount = Math.floor(Math.random() * 10000)
-
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [cleanup, setCleanup] = React.useState(false);
   const [seekSeconds, setSeekSeconds] = React.useState(0)
@@ -50,11 +57,23 @@ function VideoPage({ navigation }) {
       })
       setCleanup(true)
     }
-    renderCount += 1
   })
 
+  React.useEffect(() => {
+    const appStateSubscription = AppState.addEventListener('change', appState => {
+      if (appState === 'background') {
+        console.log("Cleanup background")
+        Libmpv.cleanup()
+      }
+    });
+
+    return () => {
+      appStateSubscription.remove();
+    };
+  }, []);
+
   function onLibmpvEvent(libmpvEvent) {
-    console.log({ renderCount, libmpvEvent })
+    console.log({ libmpvEvent })
   }
 
   function onLibmpvLog(libmpvLog) {
@@ -64,7 +83,7 @@ function VideoPage({ navigation }) {
     if (seekSeconds === 0 && libmpvLog.text && libmpvLog.text.indexOf('audio ready') !== -1) {
       setSeekSeconds(300)
     }
-    console.log({ renderCount, libmpvLog })
+    console.log({ libmpvLog })
   }
   const videoUrl = 'http://juggernaut.9914.us/tv/cartoon/b/Bluey (2018) [Australia]/Season 1/S01E001 - Magic Xylophone.mkv'
   return (

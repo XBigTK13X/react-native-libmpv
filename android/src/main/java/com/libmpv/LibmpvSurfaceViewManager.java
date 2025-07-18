@@ -26,12 +26,12 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<SurfaceView> {
 
     public static final String REACT_CLASS = "LibmpvSurfaceView";
 
-    private static String PLAY_URL = null;
-    private static Integer SURFACE_WIDTH = null;
-    private static Integer SURFACE_HEIGHT = null;
-    private static Integer AUDIO_INDEX = null;
-    private static Integer SUBTITLE_INDEX = null;
-    private static DeviceEventManagerModule.RCTDeviceEventEmitter _reactEventEmitter = null;
+    private String PLAY_URL = null;
+    private Integer SURFACE_WIDTH = null;
+    private Integer SURFACE_HEIGHT = null;
+    private Integer AUDIO_INDEX = null;
+    private Integer SUBTITLE_INDEX = null;
+    private DeviceEventManagerModule.RCTDeviceEventEmitter _reactEventEmitter = null;
 
     @Override
     @NonNull
