@@ -78,6 +78,101 @@ public class LibmpvWrapper {
         return _hasPlayedOnce;
     }
 
+    public void createMpvDirectory() {
+        File mpvDir = new File(_applicationContext.getExternalFilesDir("mpv"), "mpv");
+        try {
+            _mpvDirectory = mpvDir.getAbsolutePath();
+            if (!mpvDir.exists()) {
+                if (!mpvDir.mkdirs()) {
+                    Log.e("react-native-libmpv", "exception", new IllegalArgumentException("Unable to create " + mpvDir));
+                }
+            } else {
+                return;
+            }
+            String mpvFontPath = mpvDir + "/subfont.ttf";
+            OutputStream fontOut = new FileOutputStream(mpvFontPath);
+            final InputStream subfontIn = _applicationContext.getAssets().open("subfont.ttf");
+            byte[] subfontBuf = new byte[1024];
+            int subfontLen;
+            while ((subfontLen = subfontIn.read(subfontBuf)) > 0) {
+                fontOut.write(subfontBuf, 0, subfontLen);
+            }
+            subfontIn.close();
+            fontOut.close();
+
+            String mpvConfPath = mpvDir + "/mpv.conf";
+            OutputStream confOut = new FileOutputStream(mpvConfPath);
+            final InputStream mpvConfIn = _applicationContext.getAssets().open("mpv.conf");
+            byte[] confBuf = new byte[1024];
+            int confLen;
+            while ((confLen = mpvConfIn.read(confBuf)) > 0) {
+                confOut.write(confBuf, 0, confLen);
+            }
+            mpvConfIn.close();
+            confOut.close();
+        } catch (Exception e) {
+            Log.e("react-native-libmpv", "Unable to create the directory " + mpvDir, e);
+        }
+    }
+
+    public void defaultSetup(SurfaceView surfaceView) {
+        if (!this.create()) {
+            return;
+        }
+
+        this.createMpvDirectory();
+
+        if (_mpvDirectory == null) {
+            Log.e("react-native-libmpv", "exception", new IllegalArgumentException("Unable to create the dir!"));
+        }
+
+        this.setOptionString("pause", "yes");
+        this.setOptionString("tls-verify", "no");
+        this.setOptionString("load-auto-profiles", "no");
+        this.setOptionString("config", "yes");
+        this.setOptionString("config-dir", _mpvDirectory);
+        this.setOptionString("keep-open", "always");
+        this.setOptionString("save-position-on-quit", "no");
+        this.setOptionString("ytdl", "no");
+        this.setOptionString("msg-level", "all=no");
+
+        this.setOptionString("profile", "fast");
+        this.setOptionString("hwdec", "auto");
+        this.setOptionString("hwdec-codecs", "all");
+
+        this.setOptionString("vo", "gpu-next");
+        this.setOptionString("vf", "no");
+        this.setOptionString("gpu-context", "android");
+        this.setOptionString("opengl-es", "yes");
+        this.setOptionString("video-sync", "audio");
+        this.setOptionString("opengl-swapinterval", "1");
+
+        this.setOptionString("ao", "audiotrack");
+        this.setOptionString("af", "no");
+        this.setOptionString("alang", "");
+
+        this.setOptionString("slang", "");
+        this.setOptionString("sub-scale-with-window", "yes");
+        this.setOptionString("sub-use-margins", "no");
+        this.setOptionString("sub-font-provider", "none");
+        this.setOptionString("sub-font-dir", _mpvDirectory);
+
+        this.setOptionString("cache", "yes");
+        this.setOptionString("cache-pause-initial", "yes");
+        this.setOptionString("demuxer-max-bytes", "256MiB");
+        this.setOptionString("demuxer-max-back-bytes", "256MiB");
+        this.setOptionString("cache-secs", "5");
+        this.setOptionString("demuxer-readahead-secs", "5");
+
+        // force-window makes mpv render subs on the video
+        // it needs to be turned off until after the surface is attached
+        this.setOptionString("force-window", "no");
+        this.init();
+        this.attachSurface(surfaceView);
+        this.setOptionString("force-window", "yes");
+        this.setOptionString("pause", "no");
+    }
+
     private void logException(Exception exception) {
         try {
             if (_logObserver != null) {
@@ -199,100 +294,6 @@ public class LibmpvWrapper {
             }
         }
 
-    }
-
-    public void createMpvDirectory() {
-        File mpvDir = new File(_applicationContext.getExternalFilesDir("mpv"), "mpv");
-        try {
-            _mpvDirectory = mpvDir.getAbsolutePath();
-            if (!mpvDir.exists()) {
-                if (!mpvDir.mkdirs()) {
-                    Log.e("react-native-libmpv", "exception", new IllegalArgumentException("Unable to create " + mpvDir));
-                }
-            } else {
-                return;
-            }
-            String mpvFontPath = mpvDir + "/subfont.ttf";
-            OutputStream fontOut = new FileOutputStream(mpvFontPath);
-            final InputStream subfontIn = _applicationContext.getAssets().open("subfont.ttf");
-            byte[] subfontBuf = new byte[1024];
-            int subfontLen;
-            while ((subfontLen = subfontIn.read(subfontBuf)) > 0) {
-                fontOut.write(subfontBuf, 0, subfontLen);
-            }
-            subfontIn.close();
-            fontOut.close();
-
-            String mpvConfPath = mpvDir + "/mpv.conf";
-            OutputStream confOut = new FileOutputStream(mpvConfPath);
-            final InputStream mpvConfIn = _applicationContext.getAssets().open("mpv.conf");
-            byte[] confBuf = new byte[1024];
-            int confLen;
-            while ((confLen = mpvConfIn.read(confBuf)) > 0) {
-                confOut.write(confBuf, 0, confLen);
-            }
-            mpvConfIn.close();
-            confOut.close();
-        } catch (Exception e) {
-            Log.e("react-native-libmpv", "Unable to create the directory " + mpvDir, e);
-        }
-    }
-
-    // Modified from the Findroid defaults
-    public void defaultSetup(SurfaceView surfaceView) {
-        if (!this.create()) {
-            return;
-        }
-
-        this.createMpvDirectory();
-
-        if (_mpvDirectory == null) {
-            Log.e("react-native-libmpv", "exception", new IllegalArgumentException("Unable to create the dir!"));
-        }
-
-        this.setOptionString("tls-verify", "no");
-        this.setOptionString("config", "yes");
-        this.setOptionString("config-dir", _mpvDirectory);
-        this.setOptionString("vo", "gpu-next");
-        this.setOptionString("ao", "audiotrack");
-        this.setOptionString("vf", "no");
-        this.setOptionString("af", "no");
-        this.setOptionString("profile", "fast");
-        this.setOptionString("gpu-context", "android");
-        this.setOptionString("opengl-es", "yes");
-        this.setOptionString("hwdec", "auto");
-        this.setOptionString("hwdec-codecs", "all");
-        this.setOptionString("cache", "yes");
-        this.setOptionString("cache-pause-initial", "yes");
-        this.setOptionString("demuxer-max-bytes", "256MiB");
-        this.setOptionString("demuxer-max-back-bytes", "256MiB");
-        this.setOptionString("cache-secs", "5");
-        this.setOptionString("demuxer-readahead-secs", "5");
-
-        this.setOptionString("sub-scale-with-window", "yes");
-        this.setOptionString("sub-use-margins", "no");
-
-        this.setOptionString("alang", "");
-        this.setOptionString("slang", "");
-
-        // from the mpv repo: Without this mpv would crash before the surface is attached
-        this.setOptionString("force-window", "no");
-
-        this.setOptionString("keep-open", "always");
-        this.setOptionString("save-position-on-quit", "no");
-        this.setOptionString("sub-font-provider", "none");
-        this.setOptionString("sub-font-dir", _mpvDirectory);
-
-        this.setOptionString("ytdl", "no");
-        this.setOptionString("msg-level", "all=no");
-
-        this.init();
-
-        this.attachSurface(surfaceView);
-
-        // From the mpv repo: This forces mpv to render subs/osd/whatever into our surface even if it would ordinarily not
-        this.setOptionString("force-window", "yes");
-        this.setOptionString("vo", "gpu-next");
     }
 
     public void play(String url) {

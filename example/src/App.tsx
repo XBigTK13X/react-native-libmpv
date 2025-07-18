@@ -44,26 +44,26 @@ function LandingPage({ navigation }) {
 
 function VideoPage({ navigation }) {
   const [isPlaying, setIsPlaying] = React.useState(true);
-  const [cleanup, setCleanup] = React.useState(false);
   const [seekSeconds, setSeekSeconds] = React.useState(0)
 
   React.useEffect(() => {
-    if (!cleanup) {
-      navigation.addListener('beforeRemove', (e) => {
-        console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
-        console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
-        console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
-        Libmpv.cleanup()
-      })
-      setCleanup(true)
+    const navListener = navigation.addListener('beforeRemove', (e) => {
+      console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
+      console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
+      console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
+      Libmpv.cleanup()
+    })
+    return () => {
+      navigation.removeListener('beforeRemove', navListener)
     }
-  })
+  }, [])
 
   React.useEffect(() => {
     const appStateSubscription = AppState.addEventListener('change', appState => {
       if (appState === 'background') {
         console.log("Cleanup background")
         Libmpv.cleanup()
+        navigation.goBack()
       }
     });
 
@@ -73,7 +73,9 @@ function VideoPage({ navigation }) {
   }, []);
 
   function onLibmpvEvent(libmpvEvent) {
-    console.log({ libmpvEvent })
+    if (!libmpvEvent.property || libmpvEvent.property !== 'track-list') {
+      console.log({ libmpvEvent })
+    }
   }
 
   function onLibmpvLog(libmpvLog) {

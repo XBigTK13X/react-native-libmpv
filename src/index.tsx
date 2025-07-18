@@ -72,23 +72,23 @@ const styles = StyleSheet.create({
 });
 
 const EVENT_LOOKUP: any = {
-  "0": 'NONE',
-  "1": 'SHUTDOWN',
-  "2": 'LOG_MESSAGE',
-  "3": 'GET_PROPERTY_REPLY',
-  "4": 'SET_PROPERTY_REPLY',
-  "5": 'COMMAND_REPLY',
-  "6": 'START_FILE',
-  "7": 'END_FILE',
-  "8": 'FILE_LOADED',
-  "16": 'CLIENT_MESSAGE',
-  "17": 'VIDEO_RECONFIG',
-  "18": 'AUDIO_RECONFIG',
-  "20": 'SEEK',
-  "21": 'PLAYBACK_RESTART',
-  "22": 'PROPERTY_CHANGE',
-  "24": 'QUEUE_OVERFLOW',
-  "25": 'HOOK'
+  0: 'NONE',
+  1: 'SHUTDOWN',
+  2: 'LOG_MESSAGE',
+  3: 'GET_PROPERTY_REPLY',
+  4: 'SET_PROPERTY_REPLY',
+  5: 'COMMAND_REPLY',
+  6: 'START_FILE',
+  7: 'END_FILE',
+  8: 'FILE_LOADED',
+  16: 'CLIENT_MESSAGE',
+  17: 'VIDEO_RECONFIG',
+  18: 'AUDIO_RECONFIG',
+  20: 'SEEK',
+  21: 'PLAYBACK_RESTART',
+  22: 'PROPERTY_CHANGE',
+  24: 'QUEUE_OVERFLOW',
+  25: 'HOOK'
 }
 
 export function LibmpvVideo(props: LibmpvVideoProps) {
@@ -100,15 +100,13 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
         if (props.onLibmpvEvent) {
           if (libmpvEvent.eventId) {
             libmpvEvent.value = parseInt(libmpvEvent.eventId, 10)
+            libmpvEvent.eventKind = EVENT_LOOKUP[libmpvEvent.eventId]
           }
           else if (libmpvEvent.kind === 'long' || libmpvEvent.kind === 'double') {
             libmpvEvent.value = Number(libmpvEvent.value)
           }
           else if (libmpvEvent.kind === 'boolean') {
             libmpvEvent.value = libmpvEvent.value === 'true'
-          }
-          else if (libmpvEvent.hasOwnProperty('eventId')) {
-            libmpvEvent.eventKind = EVENT_LOOKUP[libmpvEvent.eventId]
           }
           return props.onLibmpvEvent(libmpvEvent)
         }
