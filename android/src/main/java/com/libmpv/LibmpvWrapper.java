@@ -20,14 +20,6 @@ import android.view.SurfaceView;
 public class LibmpvWrapper {
 
     private static boolean swallow = true;
-    private static LibmpvWrapper __instance;
-
-    public static LibmpvWrapper getInstance() {
-        if (__instance == null) {
-            __instance = new LibmpvWrapper();
-        }
-        return __instance;
-    }
 
     private Context _applicationContext;
     private boolean _created;
@@ -39,15 +31,14 @@ public class LibmpvWrapper {
     private int _surfaceWidth = -1;
     private int _surfaceHeight = -1;
     private LibmpvSurfaceView _surfaceView;
+    private MPVLib _mpv;
 
-    private LibmpvWrapper() {
+    public LibmpvWrapper(Context context) {
         _created = false;
         _isPlaying = false;
         _hasPlayedOnce = false;
-    }
-
-    public void setContext(Context applicationContext) {
-        _applicationContext = applicationContext;
+        _applicationContext = context;
+        _mpv = new MPVLib();
     }
 
     public boolean create() {
@@ -62,7 +53,7 @@ public class LibmpvWrapper {
             }
 
         }
-        MPVLib.create(_applicationContext);
+        _mpv.create(_applicationContext);
         _created = true;
         return true;
     }
@@ -189,17 +180,17 @@ public class LibmpvWrapper {
             if (!_created) {
                 return;
             }
-            MPVLib.removeObservers();
+            _mpv.removeObservers();
             _eventObserver = observer;
-            MPVLib.addObserver(_eventObserver);
-            MPVLib.observeProperty("demuxer-cache-time", MPVLib.MPV_FORMAT_INT64);
-            MPVLib.observeProperty("duration", MPVLib.MPV_FORMAT_INT64);
-            MPVLib.observeProperty("eof-reached", MPVLib.MPV_FORMAT_FLAG);
-            MPVLib.observeProperty("paused-for-cache", MPVLib.MPV_FORMAT_FLAG);
-            MPVLib.observeProperty("seekable", MPVLib.MPV_FORMAT_FLAG);
-            MPVLib.observeProperty("speed", MPVLib.MPV_FORMAT_DOUBLE);
-            MPVLib.observeProperty("time-pos", MPVLib.MPV_FORMAT_INT64);
-            MPVLib.observeProperty("track-list", MPVLib.MPV_FORMAT_STRING);
+            _mpv.addObserver(_eventObserver);
+            _mpv.observeProperty("demuxer-cache-time", MPVLib.MPV_FORMAT_INT64);
+            _mpv.observeProperty("duration", MPVLib.MPV_FORMAT_INT64);
+            _mpv.observeProperty("eof-reached", MPVLib.MPV_FORMAT_FLAG);
+            _mpv.observeProperty("paused-for-cache", MPVLib.MPV_FORMAT_FLAG);
+            _mpv.observeProperty("seekable", MPVLib.MPV_FORMAT_FLAG);
+            _mpv.observeProperty("speed", MPVLib.MPV_FORMAT_DOUBLE);
+            _mpv.observeProperty("time-pos", MPVLib.MPV_FORMAT_INT64);
+            _mpv.observeProperty("track-list", MPVLib.MPV_FORMAT_STRING);
         } catch (Exception e) {
             logException(e);
             if (!swallow) {
@@ -213,9 +204,9 @@ public class LibmpvWrapper {
             if (!_created) {
                 return;
             }
-            MPVLib.removeLogObservers();
+            _mpv.removeLogObserver();
             _logObserver = observer;
-            MPVLib.addLogObserver(_logObserver);
+            _mpv.addLogObserver(_logObserver);
         } catch (Exception e) {
             logException(e);
             if (!swallow) {
@@ -228,7 +219,7 @@ public class LibmpvWrapper {
     public void setOptionString(String option, String setting) {
         try {
             if (_created) {
-                MPVLib.setOptionString(option, setting);
+                _mpv.setOptionString(option, setting);
             }
         } catch (Exception e) {
             logException(e);
@@ -241,7 +232,7 @@ public class LibmpvWrapper {
     public void setPropertyString(String property, String setting) {
         try {
             if (_created) {
-                MPVLib.setPropertyString(property, setting);
+                _mpv.setPropertyString(property, setting);
             }
         } catch (Exception e) {
             logException(e);
@@ -254,7 +245,7 @@ public class LibmpvWrapper {
     public void init() {
         try {
             if (_created) {
-                MPVLib.init();
+                _mpv.init();
             }
         } catch (Exception e) {
             logException(e);
@@ -268,7 +259,7 @@ public class LibmpvWrapper {
     public void command(String[] orders) {
         try {
             if (_created) {
-                MPVLib.command(orders);
+                _mpv.command(orders);
             }
         } catch (Exception e) {
             logException(e);
@@ -284,7 +275,7 @@ public class LibmpvWrapper {
             if (_created) {
                 _surfaceView = surfaceView;
                 this.applySurfaceDimensions();
-                MPVLib.attachSurface(_surfaceView.getHolder().getSurface());
+                _mpv.attachSurface(_surfaceView.getHolder().getSurface());
             }
         } catch (Exception e) {
             logException(e);
@@ -370,7 +361,7 @@ public class LibmpvWrapper {
 
     public void detachSurface() {
         try {
-            MPVLib.detachSurface();
+            _mpv.detachSurface();
         } catch (Exception e) {
             logException(e);
             if (!swallow) {
@@ -381,7 +372,7 @@ public class LibmpvWrapper {
 
     public void destroy() {
         try {
-            MPVLib.removeObservers();
+            _mpv.removeObservers();
         } catch (Exception e) {
             logException(e);
             if (!swallow) {
@@ -389,14 +380,14 @@ public class LibmpvWrapper {
             }
         }
         try {
-            MPVLib.removeLogObservers();
+            _mpv.removeLogObserver();
         } catch (Exception e) {
             if (!swallow) {
                 throw e;
             }
         }
         try {
-            MPVLib.destroy();
+            _mpv.destroy();
             _created = false;
         } catch (Exception e) {
             logException(e);

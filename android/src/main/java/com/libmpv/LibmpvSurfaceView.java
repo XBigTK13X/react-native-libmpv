@@ -5,13 +5,17 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.libmpv.LibmpvWrapper;
+
 public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
 
     private boolean _isSurfaceCreated = false;
+    private LibmpvWrapper _mpv;
 
     public LibmpvSurfaceView(Context context) {
         super(context);
         this.getHolder().addCallback(this);
+        _mpv = new LibmpvWrapper(context);
     }
 
     public LibmpvSurfaceView(Context context, AttributeSet attrs) {
@@ -21,6 +25,10 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
 
     public boolean isSurfaceCreated() {
         return _isSurfaceCreated;
+    }
+
+    public LibmpvWrapper getMpv() {
+        return _mpv;
     }
 
     @Override

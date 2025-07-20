@@ -1,21 +1,23 @@
 package com.libmpv;
 
+import dev.jdtech.mpv.MPVLib;
 import com.libmpv.LibmpvSurfaceView;
 
 import androidx.annotation.NonNull;
 
-import com.facebook.react.uimanager.SimpleViewManager;
-import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.common.MapBuilder;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.annotations.ReactPropGroup;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
-import com.facebook.react.uimanager.events.RCTEventEmitter;
-import dev.jdtech.mpv.MPVLib;
+import com.facebook.react.uimanager.SimpleViewManager;
+import com.facebook.react.uimanager.ThemedReactContext;
+import androidx.annotation.Nullable;
 import java.util.Map;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.common.MapBuilder;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 // Available event constants
 // https://github.com/facebook/react-native/blob/main/packages/react-native/ReactAndroid/src/main/java/com/facebook/react/uimanager/UIManagerModuleConstants.java
@@ -24,6 +26,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceView> {
 
     public static final String REACT_CLASS = "LibmpvSurfaceView";
+    private static final int COMMAND_SET_PLAY_URL = 1;
+    private static final int COMMAND_CLEANUP = 2;
 
     private String _playUrl = null;
     private Integer _surfaceWidth = null;
@@ -45,6 +49,27 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
         return new LibmpvSurfaceView(reactContext);
     }
 
+    @Override
+    public Map<String, Integer> getCommandsMap() {
+        return MapBuilder.of(
+                "SetPlayUrl", COMMAND_SET_PLAY_URL,
+                "Cleanup", COMMAND_CLEANUP
+        );
+    }
+
+    @Override
+    public void receiveCommand(LibmpvSurfaceView view, int commandId, @Nullable ReadableArray args) {
+        switch (commandId) {
+            case COMMAND_SET_PLAY_URL:
+                String playUrl = args != null ? args.getString(0) : null;
+                this.setPlayUrl(view, playUrl);
+                break;
+            case COMMAND_CLEANUP:
+                view.getMpv().cleanup();
+                break;
+        }
+    }
+
     private void attemptCreation(LibmpvSurfaceView view) {
         boolean allReactPropsHandled = _playUrl != null
                 && _surfaceWidth != null
@@ -57,63 +82,11 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
             log.putString("argument", "initialize the MPV instance");
             _reactEventEmitter.emit("libmpvLog", log);
 
-            LibmpvWrapper.getInstance().cleanup();
+            view.getMpv().cleanup();
             view.getHolder().setFixedSize(_surfaceWidth, _surfaceHeight);
-            LibmpvWrapper.getInstance().defaultSetup(view);
-            LibmpvWrapper.getInstance().addEventObserver(new MPVLib.EventObserver() {
-                @Override
-                public void eventProperty(@NonNull String property) {
-                    WritableMap event = Arguments.createMap();
-                    event.putString("property", property);
-                    event.putString("kind", "none");
-                    _reactEventEmitter.emit("libmpvEvent", event);
-                }
+            view.getMpv().defaultSetup(view);
 
-                @Override
-                public void eventProperty(@NonNull String property, long value) {
-                    WritableMap event = Arguments.createMap();
-                    event.putString("property", property);
-                    event.putString("kind", "long");
-                    event.putString("value", "" + value);
-                    _reactEventEmitter.emit("libmpvEvent", event);
-                }
-
-                @Override
-                public void eventProperty(@NonNull String property, double value) {
-                    WritableMap event = Arguments.createMap();
-                    event.putString("property", property);
-                    event.putString("kind", "double");
-                    event.putString("value", "" + value);
-                    _reactEventEmitter.emit("libmpvEvent", event);
-                }
-
-                @Override
-                public void eventProperty(@NonNull String property, boolean value) {
-                    WritableMap event = Arguments.createMap();
-                    event.putString("property", property);
-                    event.putString("value", value ? "true" : "false");
-                    event.putString("kind", "boolean");
-                    _reactEventEmitter.emit("libmpvEvent", event);
-                }
-
-                @Override
-                public void eventProperty(@NonNull String property, @NonNull String value) {
-                    WritableMap event = Arguments.createMap();
-                    event.putString("property", property);
-                    event.putString("value", value);
-                    event.putString("kind", "string");
-                    _reactEventEmitter.emit("libmpvEvent", event);
-                }
-
-                @Override
-                public void event(@MPVLib.Event int eventId) {
-                    WritableMap event = Arguments.createMap();
-                    event.putString("eventId", "" + eventId);
-                    event.putString("kind", "eventId");
-                    _reactEventEmitter.emit("libmpvEvent", event);
-                }
-            });
-            LibmpvWrapper.getInstance().addLogObserver(new MPVLib.LogObserver() {
+            view.getMpv().addLogObserver(new MPVLib.LogObserver() {
                 @Override
                 public void logMessage(@NonNull String prefix, int level, @NonNull String text) {
                     WritableMap log = Arguments.createMap();
@@ -135,7 +108,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
                 options += ",sid=" + (_subtitleIndex + 1);
             }
 
-            LibmpvWrapper.getInstance().play(_playUrl, options);
+            view.getMpv().play(_playUrl, options);
         }
     }
 
@@ -146,8 +119,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
             recreateMpv = true;
         }
         _playUrl = playUrl;
-        if (LibmpvWrapper.getInstance().isCreated() && !recreateMpv) {
-            LibmpvWrapper.getInstance().play(_playUrl);
+        if (view.getMpv().isCreated() && !recreateMpv) {
+            view.getMpv().play(_playUrl);
         } else {
             attemptCreation(view);
         }
@@ -162,8 +135,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
     @ReactProp(name = "surfaceWidth")
     public void setSurfaceWidth(LibmpvSurfaceView view, int surfaceWidth) {
         _surfaceWidth = surfaceWidth;
-        if (LibmpvWrapper.getInstance().isCreated()) {
-            LibmpvWrapper.getInstance().setSurfaceWidth(_surfaceWidth);
+        if (view.getMpv().isCreated()) {
+            view.getMpv().setSurfaceWidth(_surfaceWidth);
         } else {
             attemptCreation(view);
         }
@@ -179,8 +152,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
     public void setSurfaceHeight(LibmpvSurfaceView view, int surfaceHeight
     ) {
         _surfaceHeight = surfaceHeight;
-        if (LibmpvWrapper.getInstance().isCreated()) {
-            LibmpvWrapper.getInstance().setSurfaceHeight(_surfaceHeight);
+        if (view.getMpv().isCreated()) {
+            view.getMpv().setSurfaceHeight(_surfaceHeight);
         } else {
             attemptCreation(view);
         }
@@ -196,12 +169,12 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
     public void selectAudioTrack(LibmpvSurfaceView view, int audioTrackIndex
     ) {
         _audioIndex = audioTrackIndex;
-        if (LibmpvWrapper.getInstance().isCreated()) {
+        if (view.getMpv().isCreated()) {
             String mpvIndex = "no";
             if (_audioIndex != -1) {
                 mpvIndex = "" + (_audioIndex + 1);
             }
-            LibmpvWrapper.getInstance().setOptionString("aid", mpvIndex);
+            view.getMpv().setOptionString("aid", mpvIndex);
         } else {
             attemptCreation(view);
         }
@@ -217,12 +190,12 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
     public void selectSubtitleTrack(LibmpvSurfaceView view, int subtitleTrackIndex
     ) {
         _subtitleIndex = subtitleTrackIndex;
-        if (LibmpvWrapper.getInstance().isCreated()) {
+        if (view.getMpv().isCreated()) {
             String mpvIndex = "no";
             if (_subtitleIndex != -1) {
                 mpvIndex = "" + (_subtitleIndex + 1);
             }
-            LibmpvWrapper.getInstance().setOptionString("sid", mpvIndex);
+            view.getMpv().setOptionString("sid", mpvIndex);
         } else {
             attemptCreation(view);
         }
@@ -236,8 +209,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
 
     @ReactProp(name = "seekToSeconds")
     public void seekTo(LibmpvSurfaceView view, int seconds) {
-        if (LibmpvWrapper.getInstance().isCreated()) {
-            LibmpvWrapper.getInstance().seekToSeconds(seconds);
+        if (view.getMpv().isCreated()) {
+            view.getMpv().seekToSeconds(seconds);
         }
         if (_reactEventEmitter != null) {
             WritableMap log = Arguments.createMap();
@@ -252,13 +225,13 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
         WritableMap log = Arguments.createMap();
         log.putString("method", "setIsPlaying");
         log.putString("argument", isPlaying ? "true" : "false");
-        if (LibmpvWrapper.getInstance().isCreated() && LibmpvWrapper.getInstance().hasPlayedOnce()) {
-            log.putString("playerState", LibmpvWrapper.getInstance().isPlaying() ? "play" : "paused");
-            if (isPlaying && !LibmpvWrapper.getInstance().isPlaying()) {
-                LibmpvWrapper.getInstance().unpause();
+        if (view.getMpv().isCreated() && view.getMpv().hasPlayedOnce()) {
+            log.putString("playerState", view.getMpv().isPlaying() ? "play" : "paused");
+            if (isPlaying && !view.getMpv().isPlaying()) {
+                view.getMpv().unpause();
                 log.putString("path", "Unpausing player");
-            } else if (!isPlaying && LibmpvWrapper.getInstance().isPlaying()) {
-                LibmpvWrapper.getInstance().pause();
+            } else if (!isPlaying && view.getMpv().isPlaying()) {
+                view.getMpv().pause();
                 log.putString("path", "Pausing player");
             }
         } else {

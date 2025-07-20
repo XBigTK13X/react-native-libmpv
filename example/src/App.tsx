@@ -45,13 +45,15 @@ function LandingPage({ navigation }) {
 function VideoPage({ navigation }) {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [seekSeconds, setSeekSeconds] = React.useState(0)
-
+  const libmpvRef = React.useRef(null)
   React.useEffect(() => {
     const navListener = navigation.addListener('beforeRemove', (e) => {
       console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
       console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
       console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
-      Libmpv.cleanup()
+      if (libmpvRef.current) {
+        libmpvRef.current.cleanup()
+      }
     })
     return () => {
       navigation.removeListener('beforeRemove', navListener)
@@ -62,7 +64,9 @@ function VideoPage({ navigation }) {
     const appStateSubscription = AppState.addEventListener('change', appState => {
       if (appState === 'background') {
         console.log("Cleanup background")
-        Libmpv.cleanup()
+        if (libmpvRef.current) {
+          libmpvRef.current.cleanup()
+        }
         navigation.goBack()
       }
     });
@@ -88,6 +92,7 @@ function VideoPage({ navigation }) {
     console.log({ libmpvLog })
   }
   const videoUrl = 'http://juggernaut.9914.us/tv/cartoon/b/Bluey (2018) [Australia]/Season 1/S01E001 - Magic Xylophone.mkv'
+  console.log({ videoUrl })
   return (
     <Modal style={styles.container} onRequestClose={() => { navigation.goBack() }}>
       <TouchableOpacity
@@ -95,6 +100,7 @@ function VideoPage({ navigation }) {
         style={styles.button}
         onPress={() => { setIsPlaying(!isPlaying) }} >
         <LibmpvVideo
+          ref={libmpvRef}
           isPlaying={isPlaying}
           playUrl={videoUrl}
           surfaceWidth={1920}

@@ -33,3 +33,9 @@ Download the previous version's POM. Edit to the new version number.
 Rename generated aar to match versioning schema.
 
 Upload POM and AAR to reposlite. Bump the version in the `react-native-libmpv` project.
+
+# Credits
+
+I built this wrapper. But the library that drives the interactions with mpv is https://github.com/jarnedemeulemeester/libmpv-android.
+
+From that baseline, I merged in a PR that handle multi instance support and tweaked some things to my liking.

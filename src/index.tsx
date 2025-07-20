@@ -5,10 +5,10 @@ import {
   UIManager,
   Platform,
   type ViewStyle,
-  StyleSheet
+  NativeEventEmitter,
+  type EmitterSubscription,
+  findNodeHandle
 } from 'react-native';
-
-import { NativeEventEmitter, type EmitterSubscription } from 'react-native';
 
 const LINKING_ERROR =
   `The package 'react-native-libmpv' doesn't seem to be linked. Make sure: \n\n` +
@@ -19,7 +19,6 @@ const LINKING_ERROR =
 type NativeProps = {
   playUrl: String,
   isPlaying: Boolean,
-  style: ViewStyle,
   selectedAudioTrack: Number,
   selectedSubtitleTrack: Number,
   seekToSeconds: Number,
@@ -30,29 +29,19 @@ type NativeProps = {
 const ComponentName = 'LibmpvSurfaceView';
 // A way to prevent the "already registered" hot reload error
 //const Canvas = global['CanvasComponent'] || (global['CanvasComponent'] = requireNativeComponent('Canvas'));
-export const SurfaceView =
+const LibmpvSurfaceView =
   UIManager.getViewManagerConfig(ComponentName) != null
     ? requireNativeComponent<NativeProps>(ComponentName)
     : () => {
       throw new Error(LINKING_ERROR);
     };
 
-export const Libmpv = NativeModules.Libmpv
-  ? NativeModules.Libmpv
-  : new Proxy(
-    {},
-    {
-      get() {
-        throw new Error(LINKING_ERROR);
-      },
-    }
-  );
-
 type LibmpvVideoProps = {
+  nativeRef: object,
   playUrl: string,
   isPlaying: boolean,
   onLibmpvEvent: (libmpvEvent: object) => void,
-  onLibmpvLog: (livmpvLog: object) => void,
+  onLibmpvLog: (libmpvLog: object) => void,
   surfaceStyle: object,
   selectedAudioTrack: number,
   selectedSubtitleTrack: number,
@@ -61,7 +50,7 @@ type LibmpvVideoProps = {
   surfaceHeight: number
 }
 
-const styles = StyleSheet.create({
+const styles = {
   videoPlayer: {
     position: "absolute",
     left: 0,
@@ -69,7 +58,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0
   }
-});
+};
 
 const EVENT_LOOKUP: any = {
   0: 'NONE',
@@ -91,7 +80,8 @@ const EVENT_LOOKUP: any = {
   25: 'HOOK'
 }
 
-export function LibmpvVideo(props: LibmpvVideoProps) {
+export const LibmpvVideo = React.forwardRef((props: LibmpvVideoProps, parentRef) => {
+  const nativeRef = React.useRef(null)
   const [activityListener, setActivityListener] = React.useState<EmitterSubscription>();
   React.useEffect(() => {
     if (!activityListener && props.onLibmpvEvent) {
@@ -124,7 +114,26 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
     }
     return () => { }
   }, [])
-  return <SurfaceView
+  const nativeCleanup = () => {
+    if (nativeRef.current) {
+      const reactTag = findNodeHandle(nativeRef.current);
+      if (reactTag) {
+        console.log({ commands: UIManager.getViewManagerConfig('LibmpvSurfaceView').Commands })
+        const cleanupCommandId = UIManager.getViewManagerConfig('LibmpvSurfaceView').Commands.Cleanup;
+
+        // UIManager.dispatchViewManagerCommand(reactTag, commandID, [args...])
+        UIManager.dispatchViewManagerCommand(reactTag, cleanupCommandId);
+      }
+    }
+  };
+  React.useImperativeHandle(parentRef, () => ({
+    cleanup: nativeCleanup
+  }));
+
+  console.log({ url: props.playUrl })
+
+  return <LibmpvSurfaceView
+    ref={props.nativeRef}
     style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer}
     playUrl={props.playUrl}
     surfaceWidth={props.surfaceWidth}
@@ -134,6 +143,6 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
     selectedSubtitleTrack={props.selectedSubtitleTrack}
     seekToSeconds={props.seekToSeconds}
   />
-}
+})
 
-export default Libmpv
+export default LibmpvVideo
