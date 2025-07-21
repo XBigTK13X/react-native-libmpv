@@ -114,7 +114,6 @@ export const LibmpvVideo = React.forwardRef((props: LibmpvVideoProps, parentRef)
     return () => { }
   }, [])
 
-  console.log({ forceRefreshKey })
   return <LibmpvSurfaceView
     key={forceRefreshKey}
     style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer}

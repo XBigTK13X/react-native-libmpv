@@ -24,8 +24,9 @@ import java.util.Map;
 
 public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
 
-    private boolean _isSurfaceCreated = false;
+    private boolean _isSurfaceCreated;
     private LibmpvWrapper _mpv;
+
     private DeviceEventManagerModule.RCTDeviceEventEmitter _reactEventEmitter;
     private String _playUrl = null;
     private Integer _surfaceWidth = null;
@@ -33,15 +34,12 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
     private Integer _audioIndex = null;
     private Integer _subtitleIndex = null;
 
-    public LibmpvSurfaceView(Context context) {
+    public LibmpvSurfaceView(Context context, DeviceEventManagerModule.RCTDeviceEventEmitter reactEventEmitter) {
         super(context);
         this.getHolder().addCallback(this);
+        _isSurfaceCreated = false;
+        _reactEventEmitter = reactEventEmitter;
         _mpv = new LibmpvWrapper(context);
-    }
-
-    public LibmpvSurfaceView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        this.getHolder().addCallback(this);
     }
 
     public LibmpvWrapper getMpv() {
@@ -52,20 +50,22 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
         _mpv.cleanup();
     }
 
+    boolean isSurfaceReady() {
+        return _isSurfaceCreated;
+    }
+
     public void createNativePlayer(
             String playUrl,
             Integer surfaceWidth,
             Integer surfaceHeight,
             Integer audioIndex,
-            Integer subtitleIndex,
-            DeviceEventManagerModule.RCTDeviceEventEmitter eventEmitter
+            Integer subtitleIndex
     ) {
         _playUrl = playUrl;
         _surfaceWidth = surfaceWidth;
         _surfaceHeight = surfaceHeight;
         _audioIndex = audioIndex;
         _subtitleIndex = subtitleIndex;
-        _reactEventEmitter = eventEmitter;
         _mpv.defaultSetup(this);
         WritableMap log = Arguments.createMap();
         log.putString("method", "LibmpvSurfaceView.createNativePlayer");
@@ -105,6 +105,7 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
         log.putString("method", "LibmpvSurfaceView.surfaceCreated");
         log.putString("argument", "Surface created and MPV should be playing");
         _reactEventEmitter.emit("libmpvLog", log);
+        _isSurfaceCreated = true;
     }
 
     @Override
@@ -117,4 +118,10 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
         _mpv.cleanup();
     }
 
+    public void log(String method, String argument) {
+        WritableMap log = Arguments.createMap();
+        log.putString("method", method);
+        log.putString("argument", argument);
+        _reactEventEmitter.emit("libmpvLog", log);
+    }
 }
