@@ -4,10 +4,8 @@ import {
   NativeModules,
   UIManager,
   Platform,
-  type ViewStyle,
   NativeEventEmitter,
   type EmitterSubscription,
-  findNodeHandle
 } from 'react-native';
 
 const LINKING_ERROR =
@@ -17,6 +15,8 @@ const LINKING_ERROR =
   '- You are not using Expo Go\n';
 
 type NativeProps = {
+  key: Number,
+  style: Object,
   playUrl: String,
   isPlaying: Boolean,
   selectedAudioTrack: Number,
@@ -37,6 +37,8 @@ const LibmpvSurfaceView =
     };
 
 type LibmpvVideoProps = {
+  key: number,
+  style: object,
   playUrl: string,
   isPlaying: boolean,
   onLibmpvEvent: (libmpvEvent: object) => void,
@@ -79,9 +81,9 @@ const EVENT_LOOKUP: any = {
   25: 'HOOK'
 }
 
-export const LibmpvVideo = React.forwardRef((props: LibmpvVideoProps, parentRef) => {
+export function LibmpvVideo(props: LibmpvVideoProps) {
+  const forceRefreshKey = Date.now();
   const [activityListener, setActivityListener] = React.useState<EmitterSubscription>();
-  const [forceRefreshKey, setForceRefreshKey] = React.useState<String>(`mpv-${Date.now()}`);
   React.useEffect(() => {
     if (!activityListener && props.onLibmpvEvent) {
       const eventEmitter = new NativeEventEmitter(NativeModules.Libmpv);
@@ -125,6 +127,6 @@ export const LibmpvVideo = React.forwardRef((props: LibmpvVideoProps, parentRef)
     selectedSubtitleTrack={props.selectedSubtitleTrack}
     seekToSeconds={props.seekToSeconds}
   />
-})
+}
 
 export default LibmpvVideo
