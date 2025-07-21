@@ -70,7 +70,6 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
         if (args == null) {
             return;
         }
-        view.log("receiveCommand", "" + commandId + " - " + args);
         switch (commandId) {
             case COMMAND_SET_PLAY_URL:
                 String playUrl = args.getString(0);

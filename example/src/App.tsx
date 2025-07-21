@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Button, Modal, TouchableOpacity, AppState } from 'react-native';
+import { View, Button, Modal, TouchableOpacity, AppState, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LibmpvVideo, Libmpv } from 'react-native-libmpv';
@@ -45,6 +45,7 @@ function LandingPage({ navigation }) {
 function VideoPage({ navigation }) {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [seekSeconds, setSeekSeconds] = React.useState(0)
+  const [loadError, setLoadError] = React.useState('')
   const nativeRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -60,6 +61,10 @@ function VideoPage({ navigation }) {
     };
   }, []);
 
+  if (loadError) {
+    return <Text>{loadError}</Text>
+  }
+
   function onLibmpvEvent(libmpvEvent) {
     if (!libmpvEvent.property || libmpvEvent.property !== 'track-list') {
       console.log({ libmpvEvent })
@@ -73,6 +78,10 @@ function VideoPage({ navigation }) {
     if (seekSeconds === 0 && libmpvLog.text && libmpvLog.text.indexOf('Starting playback') !== -1) {
       setSeekSeconds(300)
     }
+    if (libmpvLog.text && libmpvLog.text.indexOf('Opening failed or was aborted') !== -1) {
+      setLoadError("Unable to open file.")
+    }
+
     console.log({ libmpvLog })
   }
 
