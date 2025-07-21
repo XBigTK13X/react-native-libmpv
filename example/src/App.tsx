@@ -45,28 +45,11 @@ function LandingPage({ navigation }) {
 function VideoPage({ navigation }) {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [seekSeconds, setSeekSeconds] = React.useState(0)
-  const libmpvRef = React.useRef(null)
-  React.useEffect(() => {
-    const navListener = navigation.addListener('beforeRemove', (e) => {
-      console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
-      console.log("=-=-=-=-=-=-Libmpv should have cleaned up=-=-=-=-=-=-");
-      console.log("=-=-=-=-=-=-                             =-=-=-=-=-=-");
-      if (libmpvRef.current) {
-        libmpvRef.current.cleanup()
-      }
-    })
-    return () => {
-      navigation.removeListener('beforeRemove', navListener)
-    }
-  }, [])
 
   React.useEffect(() => {
     const appStateSubscription = AppState.addEventListener('change', appState => {
       if (appState === 'background') {
         console.log("Cleanup background")
-        if (libmpvRef.current) {
-          libmpvRef.current.cleanup()
-        }
         navigation.goBack()
       }
     });
@@ -86,13 +69,12 @@ function VideoPage({ navigation }) {
     if (libmpvLog.hasOwnProperty('method')) {
       console.log("=-=-=-=-=-=-==- NATIVE METHOD =-=-=-=--==-=")
     }
-    if (seekSeconds === 0 && libmpvLog.text && libmpvLog.text.indexOf('audio ready') !== -1) {
+    if (seekSeconds === 0 && libmpvLog.text && libmpvLog.text.indexOf('Starting playback') !== -1) {
       setSeekSeconds(300)
     }
     console.log({ libmpvLog })
   }
   const videoUrl = 'http://juggernaut.9914.us/tv/cartoon/b/Bluey (2018) [Australia]/Season 1/S01E001 - Magic Xylophone.mkv'
-  console.log({ videoUrl })
   return (
     <Modal style={styles.container} onRequestClose={() => { navigation.goBack() }}>
       <TouchableOpacity
@@ -100,14 +82,13 @@ function VideoPage({ navigation }) {
         style={styles.button}
         onPress={() => { setIsPlaying(!isPlaying) }} >
         <LibmpvVideo
-          ref={libmpvRef}
           isPlaying={isPlaying}
           playUrl={videoUrl}
           surfaceWidth={1920}
           surfaceHeight={1080}
           onLibmpvEvent={onLibmpvEvent}
           onLibmpvLog={onLibmpvLog}
-          selectedAudioTrack={0}
+          selectedAudioTrack={-1}
           selectedSubtitleTrack={-1}
           seekToSeconds={seekSeconds}
         />

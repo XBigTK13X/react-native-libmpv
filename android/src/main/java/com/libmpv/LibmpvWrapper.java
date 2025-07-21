@@ -42,18 +42,8 @@ public class LibmpvWrapper {
     }
 
     public boolean create() {
-        if (_created) {
-            try {
-                this.destroy();
-                _created = false;
-            } catch (Exception e) {
-                if (!swallow) {
-                    throw e;
-                }
-            }
-
-        }
         _mpv.create(_applicationContext);
+        this.createMpvDirectory();
         _created = true;
         return true;
     }
@@ -108,15 +98,7 @@ public class LibmpvWrapper {
     }
 
     public void defaultSetup(LibmpvSurfaceView surfaceView) {
-        if (!this.create()) {
-            return;
-        }
-
-        this.createMpvDirectory();
-
-        if (_mpvDirectory == null) {
-            Log.e("react-native-libmpv", "exception", new IllegalArgumentException("Unable to create the dir!"));
-        }
+        this.create();
 
         this.setOptionString("pause", "yes");
         this.setOptionString("tls-verify", "no");
@@ -158,9 +140,6 @@ public class LibmpvWrapper {
         this.setOptionString("demuxer-readahead-secs", "5");
 
         this.attachSurface(surfaceView);
-        this.init();
-
-        this.setOptionString("pause", "no");
     }
 
     private void logException(Exception exception) {
@@ -398,46 +377,40 @@ public class LibmpvWrapper {
     }
 
     public void cleanup() {
-        try {
-            if (_created) {
+        if (_created) {
+            try {
                 this.pause();
                 this.setPropertyString("vo", "null");
                 this.setPropertyString("ao", "null");
+            } catch (Exception e) {
+                logException(e);
+                if (!swallow) {
+                    throw e;
+                }
             }
-        } catch (Exception e) {
-            logException(e);
-            if (!swallow) {
-                throw e;
-            }
-        }
-        try {
-            if (_created) {
+            try {
                 this.setOptionString("force-window", "no");
+            } catch (Exception e) {
+                logException(e);
+                if (!swallow) {
+                    throw e;
+                }
             }
-        } catch (Exception e) {
-            logException(e);
-            if (!swallow) {
-                throw e;
-            }
-        }
-        try {
-            if (_created) {
+            try {
                 this.detachSurface();
+            } catch (Exception e) {
+                logException(e);
+                if (!swallow) {
+                    throw e;
+                }
             }
-        } catch (Exception e) {
-            logException(e);
-            if (!swallow) {
-                throw e;
-            }
-        }
-        try {
-            if (_created) {
+            try {
                 this.destroy();
-            }
-        } catch (Exception e) {
-            logException(e);
-            if (!swallow) {
-                throw e;
+            } catch (Exception e) {
+                logException(e);
+                if (!swallow) {
+                    throw e;
+                }
             }
         }
     }

@@ -37,7 +37,6 @@ const LibmpvSurfaceView =
     };
 
 type LibmpvVideoProps = {
-  nativeRef: object,
   playUrl: string,
   isPlaying: boolean,
   onLibmpvEvent: (libmpvEvent: object) => void,
@@ -81,8 +80,8 @@ const EVENT_LOOKUP: any = {
 }
 
 export const LibmpvVideo = React.forwardRef((props: LibmpvVideoProps, parentRef) => {
-  const nativeRef = React.useRef(null)
   const [activityListener, setActivityListener] = React.useState<EmitterSubscription>();
+  const [forceRefreshKey, setForceRefreshKey] = React.useState<String>(`mpv-${Date.now()}`);
   React.useEffect(() => {
     if (!activityListener && props.onLibmpvEvent) {
       const eventEmitter = new NativeEventEmitter(NativeModules.Libmpv);
@@ -114,26 +113,10 @@ export const LibmpvVideo = React.forwardRef((props: LibmpvVideoProps, parentRef)
     }
     return () => { }
   }, [])
-  const nativeCleanup = () => {
-    if (nativeRef.current) {
-      const reactTag = findNodeHandle(nativeRef.current);
-      if (reactTag) {
-        console.log({ commands: UIManager.getViewManagerConfig('LibmpvSurfaceView').Commands })
-        const cleanupCommandId = UIManager.getViewManagerConfig('LibmpvSurfaceView').Commands.Cleanup;
 
-        // UIManager.dispatchViewManagerCommand(reactTag, commandID, [args...])
-        UIManager.dispatchViewManagerCommand(reactTag, cleanupCommandId);
-      }
-    }
-  };
-  React.useImperativeHandle(parentRef, () => ({
-    cleanup: nativeCleanup
-  }));
-
-  console.log({ url: props.playUrl })
-
+  console.log({ forceRefreshKey })
   return <LibmpvSurfaceView
-    ref={props.nativeRef}
+    key={forceRefreshKey}
     style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer}
     playUrl={props.playUrl}
     surfaceWidth={props.surfaceWidth}

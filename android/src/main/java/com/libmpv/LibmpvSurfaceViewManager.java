@@ -50,10 +50,15 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
     }
 
     @Override
+    public void onDropViewInstance(LibmpvSurfaceView view) {
+        super.onDropViewInstance(view);
+        view.cleanup();
+    }
+
+    @Override
     public Map<String, Integer> getCommandsMap() {
         return MapBuilder.of(
-                "SetPlayUrl", COMMAND_SET_PLAY_URL,
-                "Cleanup", COMMAND_CLEANUP
+                "SetPlayUrl", COMMAND_SET_PLAY_URL
         );
     }
 
@@ -63,9 +68,6 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
             case COMMAND_SET_PLAY_URL:
                 String playUrl = args != null ? args.getString(0) : null;
                 this.setPlayUrl(view, playUrl);
-                break;
-            case COMMAND_CLEANUP:
-                view.getMpv().cleanup();
                 break;
         }
     }
@@ -81,34 +83,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
             log.putString("method", "attemptCreation");
             log.putString("argument", "initialize the MPV instance");
             _reactEventEmitter.emit("libmpvLog", log);
-
-            view.getMpv().cleanup();
-            view.getHolder().setFixedSize(_surfaceWidth, _surfaceHeight);
-            view.getMpv().defaultSetup(view);
-
-            view.getMpv().addLogObserver(new MPVLib.LogObserver() {
-                @Override
-                public void logMessage(@NonNull String prefix, int level, @NonNull String text) {
-                    WritableMap log = Arguments.createMap();
-                    log.putString("prefix", prefix);
-                    log.putString("level", "" + level);
-                    log.putString("text", text);
-                    _reactEventEmitter.emit("libmpvLog", log);
-                }
-            });
-            String options = "vid=1";
-            if (_audioIndex == -1) {
-                options += ",aid=no";
-            } else {
-                options += ",aid=" + (_audioIndex + 1);
-            }
-            if (_subtitleIndex == -1) {
-                options += ",sid=no";
-            } else {
-                options += ",sid=" + (_subtitleIndex + 1);
-            }
-
-            view.getMpv().play(_playUrl, options);
+            view.createNativePlayer(_playUrl, _surfaceWidth, _surfaceHeight, _audioIndex, _subtitleIndex, _reactEventEmitter);
         }
     }
 
