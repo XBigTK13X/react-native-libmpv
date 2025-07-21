@@ -45,6 +45,7 @@ function LandingPage({ navigation }) {
 function VideoPage({ navigation }) {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [seekSeconds, setSeekSeconds] = React.useState(0)
+  const nativeRef = React.useRef(null);
 
   React.useEffect(() => {
     const appStateSubscription = AppState.addEventListener('change', appState => {
@@ -74,22 +75,34 @@ function VideoPage({ navigation }) {
     }
     console.log({ libmpvLog })
   }
+
+  const onPress = () => {
+    setIsPlaying(!isPlaying)
+    if (nativeRef.current) {
+      console.log("_----__-__ Running command")
+      nativeRef.current.runMpvCommand(`set|sub-ass-override|force`);
+      nativeRef.current.runMpvCommand(`set|sub-font-size|${20 + Math.floor(Math.random() * 10)}`)
+    }
+  }
+
   const videoUrl = 'http://juggernaut.9914.us/tv/cartoon/b/Bluey (2018) [Australia]/Season 1/S01E001 - Magic Xylophone.mkv'
+  const TRACK_DISABLED = -1;
   return (
     <Modal style={styles.container} onRequestClose={() => { navigation.goBack() }}>
       <TouchableOpacity
         transparent
         style={styles.button}
-        onPress={() => { setIsPlaying(!isPlaying) }} >
+        onPress={onPress} >
         <LibmpvVideo
+          ref={nativeRef}
           isPlaying={isPlaying}
           playUrl={videoUrl}
           surfaceWidth={1920}
           surfaceHeight={1080}
           onLibmpvEvent={onLibmpvEvent}
           onLibmpvLog={onLibmpvLog}
-          selectedAudioTrack={-1}
-          selectedSubtitleTrack={-1}
+          selectedAudioTrack={0}
+          selectedSubtitleTrack={0}
           seekToSeconds={seekSeconds}
         />
       </TouchableOpacity>

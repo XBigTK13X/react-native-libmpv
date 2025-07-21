@@ -27,6 +27,8 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
 
     public static final String REACT_CLASS = "LibmpvSurfaceView";
     private static final int COMMAND_SET_PLAY_URL = 1;
+    private static final int COMMAND_SET_OPTION_STRING = 2;
+    private static final int COMMAND_RUN_MPV_COMMAND = 3;
 
     private String _playUrl = null;
     private Integer _surfaceWidth = null;
@@ -57,16 +59,35 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
     @Override
     public Map<String, Integer> getCommandsMap() {
         return MapBuilder.of(
-                "SetPlayUrl", COMMAND_SET_PLAY_URL
+                "SetPlayUrl", COMMAND_SET_PLAY_URL,
+                "SetOptionString", COMMAND_SET_OPTION_STRING,
+                "RunMpvCommand", COMMAND_RUN_MPV_COMMAND
         );
     }
 
     @Override
     public void receiveCommand(LibmpvSurfaceView view, int commandId, @Nullable ReadableArray args) {
+        if (args == null) {
+            return;
+        }
+        view.log("receiveCommand", "" + commandId + " - " + args);
         switch (commandId) {
             case COMMAND_SET_PLAY_URL:
-                String playUrl = args != null ? args.getString(0) : null;
+                String playUrl = args.getString(0);
+                view.log("command - setPlayUrl", playUrl);
                 this.setPlayUrl(view, playUrl);
+                break;
+            case COMMAND_SET_OPTION_STRING:
+                String delimitedOptions = args.getString(0);
+                String[] options = delimitedOptions.split("\\|");
+                view.log("command - setOptionString", delimitedOptions);
+                view.getMpv().setOptionString(options[0], options[1]);
+                break;
+            case COMMAND_RUN_MPV_COMMAND:
+                String delimitedCommand = args.getString(0);
+                String[] command = delimitedCommand.split("\\|");
+                view.log("command - runMpvCommand", delimitedCommand);
+                view.getMpv().command(command);
                 break;
         }
     }

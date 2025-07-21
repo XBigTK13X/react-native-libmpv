@@ -6,6 +6,7 @@ import {
   Platform,
   NativeEventEmitter,
   type EmitterSubscription,
+  findNodeHandle
 } from 'react-native';
 
 const LINKING_ERROR =
@@ -15,7 +16,7 @@ const LINKING_ERROR =
   '- You are not using Expo Go\n';
 
 type NativeProps = {
-  key: Number,
+  ref: Object,
   style: Object,
   playUrl: String,
   isPlaying: Boolean,
@@ -27,17 +28,15 @@ type NativeProps = {
 };
 
 const ComponentName = 'LibmpvSurfaceView';
-// A way to prevent the "already registered" hot reload error
-//const Canvas = global['CanvasComponent'] || (global['CanvasComponent'] = requireNativeComponent('Canvas'));
-const LibmpvSurfaceView =
-  UIManager.getViewManagerConfig(ComponentName) != null
-    ? requireNativeComponent<NativeProps>(ComponentName)
-    : () => {
-      throw new Error(LINKING_ERROR);
-    };
+let LibmpvSurfaceView = null;
+let LibmpvSurfaceViewConfig = UIManager.getViewManagerConfig(ComponentName)
+if (LibmpvSurfaceViewConfig != null) {
+  LibmpvSurfaceView = requireNativeComponent<NativeProps>(ComponentName)
+} else {
+  throw new Error(LINKING_ERROR);
+}
 
 type LibmpvVideoProps = {
-  key: number,
   style: object,
   playUrl: string,
   isPlaying: boolean,
@@ -81,9 +80,12 @@ const EVENT_LOOKUP: any = {
   25: 'HOOK'
 }
 
-export function LibmpvVideo(props: LibmpvVideoProps) {
-  const forceRefreshKey = Date.now();
+export const LibmpvVideo = React.forwardRef((props: LibmpvVideoProps, parentRef) => {
+  const nativeRef = React.useRef<any>(null);
+
   const [activityListener, setActivityListener] = React.useState<EmitterSubscription>();
+
+  // Pass mpv events and logs back up to the parent
   React.useEffect(() => {
     if (!activityListener && props.onLibmpvEvent) {
       const eventEmitter = new NativeEventEmitter(NativeModules.Libmpv);
@@ -116,8 +118,30 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
     return () => { }
   }, [])
 
+  // Allow a parent to call native methods, such as tweaking subtitle properties
+  const callNativeMethod = (nativeCommand: number | undefined) => {
+    return (pipeDelimitedArguments: string) => {
+      if (nativeRef.current) {
+        const reactTag = findNodeHandle(nativeRef.current);
+        if (reactTag) {
+          if (nativeCommand != null) {
+            UIManager.dispatchViewManagerCommand(reactTag, nativeCommand, [pipeDelimitedArguments]);
+          }
+        }
+      }
+    }
+  }
+  React.useImperativeHandle(parentRef, () => ({
+    runMpvCommand: callNativeMethod(LibmpvSurfaceViewConfig.Commands.RunMpvCommand),
+    setOptionString: callNativeMethod(LibmpvSurfaceViewConfig.Commands.SetOptionString)
+  }));
+
+
+  // The order props are handled in the native code is non-deterministic
+  // Each native prop setter checks to see if all required props are set
+  // Only then will it try to create an mpv instance
   return <LibmpvSurfaceView
-    key={forceRefreshKey}
+    ref={nativeRef}
     style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer}
     playUrl={props.playUrl}
     surfaceWidth={props.surfaceWidth}
@@ -127,6 +151,6 @@ export function LibmpvVideo(props: LibmpvVideoProps) {
     selectedSubtitleTrack={props.selectedSubtitleTrack}
     seekToSeconds={props.seekToSeconds}
   />
-}
+})
 
 export default LibmpvVideo
