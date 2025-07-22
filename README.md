@@ -1,12 +1,18 @@
-# THIS IS A PLACEHOLDER AT THE MOMENT. NOT READY FOR USE.
+# react-native-libmpv
 
-Even when it's ready, I only plan on supporting Android.
+React Native component that wraps libmpv.
+
+# Usage
+
+I only plan on supporting Android.
 
 iOS support contributions are welcome, but I have no way to test it.
 
-# react-native-libmpv
+It uses the legacy Native Module style. No Turbo support planned at this time.
 
-Libmpv wrapper GUI component
+The component will display video. Controls are handled by the app, not this library.
+
+Take a look at https://github.com/XBigTK13X/snowstream for a real app using the library.
 
 ## Installation
 
@@ -36,6 +42,6 @@ Upload POM and AAR to reposlite. Bump the version in the `react-native-libmpv` p
 
 # Credits
 
-I built this wrapper. But the library that drives the interactions with mpv is https://github.com/jarnedemeulemeester/libmpv-android.
+I built this wrapper. But the library that drives the interactions with mpv comes from https://github.com/jarnedemeulemeester/libmpv-android.
 
-From that baseline, I merged in a PR that handle multi instance support and tweaked some things to my liking.
+That repo is the baseline, I merged in a PR that handle multi instance support and tweaked some things to my liking.
