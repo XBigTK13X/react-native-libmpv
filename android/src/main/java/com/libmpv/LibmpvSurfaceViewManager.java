@@ -35,6 +35,7 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
     private Integer _surfaceHeight = null;
     private Integer _audioIndex = null;
     private Integer _subtitleIndex = null;
+    private Boolean _useHardwareDecoder = null;
     private DeviceEventManagerModule.RCTDeviceEventEmitter _reactEventEmitter = null;
 
     @Override
@@ -96,10 +97,18 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
                 && _surfaceWidth != null
                 && _surfaceHeight != null
                 && _audioIndex != null
-                && _subtitleIndex != null;
+                && _subtitleIndex != null
+                && _useHardwareDecoder != null;
         if (allReactPropsHandled) {
             view.log("attemptCreation", "initialize the MPV instance");
-            view.createNativePlayer(_playUrl, _surfaceWidth, _surfaceHeight, _audioIndex, _subtitleIndex);
+            view.createNativePlayer(
+                    _playUrl,
+                    _surfaceWidth,
+                    _surfaceHeight,
+                    _audioIndex,
+                    _subtitleIndex,
+                    _useHardwareDecoder
+            );
         }
     }
 
@@ -112,6 +121,17 @@ public class LibmpvSurfaceViewManager extends SimpleViewManager<LibmpvSurfaceVie
             attemptCreation(view);
         }
         view.log("setPlayUrl", "" + playUrl);
+    }
+
+    @ReactProp(name = "useHardwareDecoder")
+    public void useHardwareDecoder(LibmpvSurfaceView view, boolean useHardwareDecoder) {
+        _useHardwareDecoder = useHardwareDecoder;
+        if (view.isSurfaceReady()) {
+            view.setHardwareDecoder(_useHardwareDecoder);
+        } else {
+            attemptCreation(view);
+        }
+        view.log("setUseHardwareDecoder", "" + _useHardwareDecoder);
     }
 
     @ReactProp(name = "surfaceWidth")

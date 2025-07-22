@@ -33,6 +33,7 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
     private Integer _surfaceHeight = null;
     private Integer _audioIndex = null;
     private Integer _subtitleIndex = null;
+    private Boolean _useHardwareDecoder = null;
 
     public LibmpvSurfaceView(Context context, DeviceEventManagerModule.RCTDeviceEventEmitter reactEventEmitter) {
         super(context);
@@ -47,6 +48,7 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
     }
 
     public void cleanup() {
+        this.getHolder().removeCallback(this);
         _mpv.cleanup();
     }
 
@@ -59,24 +61,85 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
             Integer surfaceWidth,
             Integer surfaceHeight,
             Integer audioIndex,
-            Integer subtitleIndex
+            Integer subtitleIndex,
+            Boolean useHardwareDecoder
     ) {
         _playUrl = playUrl;
         _surfaceWidth = surfaceWidth;
         _surfaceHeight = surfaceHeight;
         _audioIndex = audioIndex;
         _subtitleIndex = subtitleIndex;
-        _mpv.defaultSetup(this);
+        _useHardwareDecoder = useHardwareDecoder;
+        _mpv.create();
+        this.prepareMpvSettings();
+        log("LibmpvSurfaceView.createNativePlayer", "mpv settings prepared. Waiting on surface creation.");
+    }
+
+    private void prepareMpvSettings() {
+        // Disable window interaction until after the surface is attached
+        // Otherwise the surface may be accessed my mpv before the surface is ready
+        _mpv.setOptionString("force-window", "no");
+
+        _mpv.setOptionString("config", "yes");
+        _mpv.setOptionString("config-dir", _mpv.getMpvDirectoryPath());
+        _mpv.setOptionString("sub-font-dir", _mpv.getMpvDirectoryPath());
+
+        _mpv.setOptionString("keep-open", "always");
+        _mpv.setOptionString("save-position-on-quit", "no");
+        _mpv.setOptionString("ytdl", "no");
+        _mpv.setOptionString("msg-level", "all=no");
+
+        _mpv.setOptionString("profile", "fast");
+        _mpv.setOptionString("vo", "gpu-next");
+        if (_useHardwareDecoder) {
+            _mpv.setOptionString("hwdec", "mediacodec,mediacodec-copy,no");
+            _mpv.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
+        } else {
+            _mpv.setOptionString("hwdec", "no");
+        }
+        _mpv.setOptionString("gpu-context", "android");
+        _mpv.setOptionString("opengl-es", "yes");
+        _mpv.setOptionString("video-sync", "audio");
+        //_mpv.setOptionString("override-display-fps", "24");
+        //_mpv.setOptionString("vd-lavc-fast", "yes");
+        //_mpv.setOptionString("vd-lavc-skiploopfilter", "nonkey");
+
+        _mpv.setOptionString("ao", "audiotrack");
+        _mpv.setOptionString("alang", "");
+
+        _mpv.setOptionString("sub-font-provider", "none");
+        _mpv.setOptionString("slang", "");
+        _mpv.setOptionString("sub-scale-with-window", "yes");
+        _mpv.setOptionString("sub-use-margins", "no");
+
+        _mpv.setOptionString("cache", "yes");
+        _mpv.setOptionString("cache-pause-initial", "yes");
+        _mpv.setOptionString("cache-secs", "5");
+        _mpv.setOptionString("demuxer-readahead-secs", "5");
+
+    }
+
+    public void log(String method, String argument) {
         WritableMap log = Arguments.createMap();
-        log.putString("method", "LibmpvSurfaceView.createNativePlayer");
-        log.putString("argument", "mpv defaultSetup complete. Waiting on surface creation.");
+        log.putString("method", method);
+        log.putString("argument", argument);
         _reactEventEmitter.emit("libmpvLog", log);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         holder.setFixedSize(_surfaceWidth, _surfaceHeight);
+        _mpv.setPropertyString("android-surface-size", _surfaceWidth + "x" + _surfaceHeight);
+        _mpv.attachSurface(this);
+        this.prepareMpvPlayback();
+        _isSurfaceCreated = true;
+        log("LibmpvSurfaceView.surfaceCreated", "Surface created and MPV should be playing");
+    }
+
+    private void prepareMpvPlayback() {
+        // Force subtitles to render on the surface view
         _mpv.init();
+        _mpv.setOptionString("force-window", "yes");
         _mpv.addLogObserver(new MPVLib.LogObserver() {
             @Override
             public void logMessage(@NonNull String prefix, int level, @NonNull String text) {
@@ -98,30 +161,30 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
         } else {
             options += ",sid=" + (_subtitleIndex + 1);
         }
-
         _mpv.play(_playUrl, options);
-        _mpv.setOptionString("pause", "no");
-        WritableMap log = Arguments.createMap();
-        log.putString("method", "LibmpvSurfaceView.surfaceCreated");
-        log.putString("argument", "Surface created and MPV should be playing");
-        _reactEventEmitter.emit("libmpvLog", log);
-        _isSurfaceCreated = true;
+    }
+
+    public void setHardwareDecoder(boolean useHardware) {
+        _useHardwareDecoder = useHardware;
+        if (_useHardwareDecoder) {
+            _mpv.setOptionString("hwdec", "mediacodec,mediacodec-copy");
+            _mpv.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
+        } else {
+            _mpv.setOptionString("hwdec", "no");
+        }
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height
+    ) {
+        //_mpv.setPropertyString("android-surface-size", width + "x" + height);
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        _mpv.cleanup();
-    }
-
-    public void log(String method, String argument) {
-        WritableMap log = Arguments.createMap();
-        log.putString("method", method);
-        log.putString("argument", argument);
-        _reactEventEmitter.emit("libmpvLog", log);
+    public void surfaceDestroyed(SurfaceHolder holder
+    ) {
+        _mpv.setPropertyString("vo", "null");
+        _mpv.setPropertyString("force-window", "no");
+        _mpv.detachSurface();
     }
 }

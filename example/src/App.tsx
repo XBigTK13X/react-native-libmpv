@@ -4,6 +4,19 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LibmpvVideo, Libmpv } from 'react-native-libmpv';
 
+const TRACK_DISABLED = -1;
+
+const resolutions = {
+  ultraHd: {
+    width: 3840,
+    height: 2160
+  },
+  fullHd: {
+    width: 1920,
+    height: 1080
+  }
+}
+
 const styles = {
   homePage: {
     flex: 1,
@@ -45,7 +58,7 @@ function LandingPage({ navigation }) {
 function VideoPage({ navigation }) {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [seekSeconds, setSeekSeconds] = React.useState(0)
-  const [loadError, setLoadError] = React.useState('')
+  const [loadError, setError] = React.useState('')
   const nativeRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -76,10 +89,13 @@ function VideoPage({ navigation }) {
       console.log("=-=-=-=-=-=-==- NATIVE METHOD =-=-=-=--==-=")
     }
     if (seekSeconds === 0 && libmpvLog.text && libmpvLog.text.indexOf('Starting playback') !== -1) {
-      setSeekSeconds(300)
+      //setSeekSeconds(300)
     }
     if (libmpvLog.text && libmpvLog.text.indexOf('Opening failed or was aborted') !== -1) {
-      setLoadError("Unable to open file.")
+      setError("Unable to open file.")
+    }
+    if (libmpvLog.text && libmpvLog.prefix === 'vd' && libmpvLog.text.indexOf('Using software decoding') !== -1) {
+      //setError("Unable to use hardware decoding!.")
     }
 
     console.log({ libmpvLog })
@@ -94,8 +110,9 @@ function VideoPage({ navigation }) {
     }
   }
 
-  const videoUrl = 'http://juggernaut.9914.us/tv/cartoon/b/Bluey (2018) [Australia]/Season 1/S01E001 - Magic Xylophone.mkv'
-  const TRACK_DISABLED = -1;
+
+  const animeUrl = 'http://juggernaut.9914.us/tv/anime/precure/Star ☆ Twinkle Precure/Season 1/S01E006 - An Imagination of Darkness! The Dark Pen Appears!.mkv'
+  const videoUrl = animeUrl;
   return (
     <Modal style={styles.container} onRequestClose={() => { navigation.goBack() }}>
       <TouchableOpacity
@@ -106,8 +123,9 @@ function VideoPage({ navigation }) {
           ref={nativeRef}
           isPlaying={isPlaying}
           playUrl={videoUrl}
-          surfaceWidth={1920}
-          surfaceHeight={1080}
+          useHardwareDecoder={true}
+          surfaceWidth={resolutions.fullHd.width}
+          surfaceHeight={resolutions.fullHd.height}
           onLibmpvEvent={onLibmpvEvent}
           onLibmpvLog={onLibmpvLog}
           selectedAudioTrack={0}

@@ -15,8 +15,10 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+// https://mpv.io/manual/master/#property-manipulation
 // https://github.com/jarnedemeulemeester/findroid/blob/main/player/video/src/main/java/dev/jdtech/jellyfin/mpv/MPVPlayer.kt
 // https://github.com/mpv-android/mpv-android/blob/7ae2b0fdc7f5a0948a1327191bf56798884f839b/app/src/main/java/is/xyz/mpv/MPVView.kt#L22
+// https://github.com/mpv-android/mpv-android/blob/b37f1564de1832efec43962787855c09b077c714/app/src/main/java/is/xyz/mpv/BaseMPVView.kt#L85
 public class LibmpvWrapper {
 
     private static boolean swallow = true;
@@ -60,6 +62,10 @@ public class LibmpvWrapper {
         return _hasPlayedOnce;
     }
 
+    public String getMpvDirectoryPath() {
+        return _mpvDirectory;
+    }
+
     public void createMpvDirectory() {
         File mpvDir = new File(_applicationContext.getExternalFilesDir("mpv"), "mpv");
         try {
@@ -95,51 +101,6 @@ public class LibmpvWrapper {
         } catch (Exception e) {
             Log.e("react-native-libmpv", "Unable to create the directory " + mpvDir, e);
         }
-    }
-
-    public void defaultSetup(LibmpvSurfaceView surfaceView) {
-        this.create();
-
-        this.setOptionString("pause", "yes");
-        this.setOptionString("tls-verify", "no");
-        this.setOptionString("load-auto-profiles", "no");
-        this.setOptionString("config", "yes");
-        this.setOptionString("config-dir", _mpvDirectory);
-        this.setOptionString("keep-open", "always");
-        this.setOptionString("save-position-on-quit", "no");
-        this.setOptionString("ytdl", "no");
-        this.setOptionString("msg-level", "all=no");
-
-        this.setOptionString("profile", "fast");
-        this.setOptionString("hwdec", "auto");
-        this.setOptionString("hwdec-codecs", "all");
-
-        this.setOptionString("vo", "gpu");
-        this.setOptionString("vf", "no");
-        this.setOptionString("gpu-context", "android");
-        this.setOptionString("opengl-es", "yes");
-        this.setOptionString("video-sync", "audio");
-        this.setOptionString("opengl-swapinterval", "1"); // Allow video-sync to work by forcing vsync
-        this.setOptionString("force-window", "yes"); // Force subtitles to render on the surface view
-
-        this.setOptionString("ao", "audiotrack");
-        this.setOptionString("af", "no");
-        this.setOptionString("alang", "");
-
-        this.setOptionString("slang", "");
-        this.setOptionString("sub-scale-with-window", "yes");
-        this.setOptionString("sub-use-margins", "no");
-        this.setOptionString("sub-font-provider", "none");
-        this.setOptionString("sub-font-dir", _mpvDirectory);
-
-        this.setOptionString("cache", "yes");
-        this.setOptionString("cache-pause-initial", "yes");
-        this.setOptionString("demuxer-max-bytes", "256MiB");
-        this.setOptionString("demuxer-max-back-bytes", "256MiB");
-        this.setOptionString("cache-secs", "5");
-        this.setOptionString("demuxer-readahead-secs", "5");
-
-        this.attachSurface(surfaceView);
     }
 
     private void logException(Exception exception) {

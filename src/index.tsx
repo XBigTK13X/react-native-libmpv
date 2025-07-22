@@ -20,6 +20,7 @@ type NativeProps = {
   style: Object,
   playUrl: String,
   isPlaying: Boolean,
+  useHardwareDecoder: Boolean,
   selectedAudioTrack: Number,
   selectedSubtitleTrack: Number,
   seekToSeconds: Number,
@@ -40,6 +41,7 @@ type LibmpvVideoProps = {
   style: object,
   playUrl: string,
   isPlaying: boolean,
+  useHardwareDecoder: boolean,
   onLibmpvEvent: (libmpvEvent: object) => void,
   onLibmpvLog: (libmpvLog: object) => void,
   surfaceStyle: object,
@@ -144,9 +146,10 @@ export const LibmpvVideo = React.forwardRef((props: LibmpvVideoProps, parentRef)
     ref={nativeRef}
     style={props.surfaceStyle ? props.surfaceStyle : styles.videoPlayer}
     playUrl={props.playUrl}
+    isPlaying={props.isPlaying}
+    useHardwareDecoder={props.useHardwareDecoder}
     surfaceWidth={props.surfaceWidth}
     surfaceHeight={props.surfaceHeight}
-    isPlaying={props.isPlaying}
     selectedAudioTrack={props.selectedAudioTrack}
     selectedSubtitleTrack={props.selectedSubtitleTrack}
     seekToSeconds={props.seekToSeconds}
