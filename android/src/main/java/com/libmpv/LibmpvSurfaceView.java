@@ -22,7 +22,7 @@ import com.libmpv.LibmpvWrapper;
 import dev.jdtech.mpv.MPVLib;
 import java.util.Map;
 
-public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
+public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Callback, MPVLib.LogObserver, MPVLib.EventObserver {
 
     private boolean _isSurfaceCreated;
     private LibmpvWrapper _mpv;
@@ -78,6 +78,8 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
     private void prepareMpvSettings() {
         // Disable window interaction until after the surface is attached
         // Otherwise the surface may be accessed my mpv before the surface is ready
+        _mpv.addLogObserver(this);
+        _mpv.addEventObserver(this);
         _mpv.setOptionString("force-window", "no");
 
         _mpv.setOptionString("config", "yes");
@@ -140,16 +142,6 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
         // Force subtitles to render on the surface view
         _mpv.init();
         _mpv.setOptionString("force-window", "yes");
-        _mpv.addLogObserver(new MPVLib.LogObserver() {
-            @Override
-            public void logMessage(@NonNull String prefix, int level, @NonNull String text) {
-                WritableMap log = Arguments.createMap();
-                log.putString("prefix", prefix);
-                log.putString("level", "" + level);
-                log.putString("text", text);
-                _reactEventEmitter.emit("libmpvLog", log);
-            }
-        });
         String options = "vid=1";
         if (_audioIndex == -1) {
             options += ",aid=no";
@@ -186,5 +178,68 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
         _mpv.setPropertyString("vo", "null");
         _mpv.setPropertyString("force-window", "no");
         _mpv.detachSurface();
+    }
+
+    // MPVLib.LogObserver
+    @Override
+    public void logMessage(@NonNull String prefix, int level, @NonNull String text) {
+        WritableMap log = Arguments.createMap();
+        log.putString("prefix", prefix);
+        log.putString("level", "" + level);
+        log.putString("text", text);
+        _reactEventEmitter.emit("libmpvLog", log);
+    }
+
+    // MPVLib.EventObserver
+    @Override
+    public void eventProperty(@NonNull String property) {
+        WritableMap event = Arguments.createMap();
+        event.putString("property", property);
+        event.putString("kind", "none");
+        _reactEventEmitter.emit("libmpvEvent", event);
+    }
+
+    @Override
+    public void eventProperty(@NonNull String property, long value) {
+        WritableMap event = Arguments.createMap();
+        event.putString("property", property);
+        event.putString("kind", "long");
+        event.putString("value", "" + value);
+        _reactEventEmitter.emit("libmpvEvent", event);
+    }
+
+    @Override
+    public void eventProperty(@NonNull String property, double value) {
+        WritableMap event = Arguments.createMap();
+        event.putString("property", property);
+        event.putString("kind", "double");
+        event.putString("value", "" + value);
+        _reactEventEmitter.emit("libmpvEvent", event);
+    }
+
+    @Override
+    public void eventProperty(@NonNull String property, boolean value) {
+        WritableMap event = Arguments.createMap();
+        event.putString("property", property);
+        event.putString("value", value ? "true" : "false");
+        event.putString("kind", "boolean");
+        _reactEventEmitter.emit("libmpvEvent", event);
+    }
+
+    @Override
+    public void eventProperty(@NonNull String property, @NonNull String value) {
+        WritableMap event = Arguments.createMap();
+        event.putString("property", property);
+        event.putString("value", value);
+        event.putString("kind", "string");
+        _reactEventEmitter.emit("libmpvEvent", event);
+    }
+
+    @Override
+    public void event(@MPVLib.Event int eventId) {
+        WritableMap event = Arguments.createMap();
+        event.putString("eventId", "" + eventId);
+        event.putString("kind", "eventId");
+        _reactEventEmitter.emit("libmpvEvent", event);
     }
 }

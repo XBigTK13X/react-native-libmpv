@@ -144,7 +144,7 @@ public class LibmpvWrapper {
             if (!_created) {
                 return;
             }
-            _mpv.removeLogObserver();
+            _mpv.removeLogObservers();
             _logObserver = observer;
             _mpv.addLogObserver(_logObserver);
         } catch (Exception e) {
@@ -320,7 +320,7 @@ public class LibmpvWrapper {
             }
         }
         try {
-            _mpv.removeLogObserver();
+            _mpv.removeLogObservers();
         } catch (Exception e) {
             if (!swallow) {
                 throw e;

@@ -93,6 +93,6 @@ dependencies {
   implementation "com.facebook.react:react-native:+"
   // https://stackoverflow.com/questions/60878599/error-building-android-library-direct-local-aar-file-dependencies-are-not-supp
   // https://dev.devbf.com/posts/how-to-include-external-aar-package-manually-using-gradle-for-android-studio-82fc3/
-  implementation "com.libmpv:android-libmpv:0.5.7"
+  implementation "com.libmpv:android-libmpv:0.5.9"
 }
 
