@@ -77,6 +77,13 @@ android {
 }
 
 repositories {
+  // The only alternative to self-hosting an artifactory instance
+  // Was to manually extract the jni so libs and classes.jar on each update.
+  // Anything else, throws a bunch of errors when the APK for a consumer is built
+  maven {
+    name "reposlite"
+    url "https://reposlite.9914.us/repository/main/"
+  }
   mavenCentral()
   google()
 }
@@ -87,6 +94,6 @@ dependencies {
   // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
-  implementation files('aar/libmpv-android-0.5.10-classes.jar')
+  implementation "com.libmpv:android-libmpv:0.5.10"
 }
 

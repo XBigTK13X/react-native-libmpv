@@ -30,7 +30,9 @@ Update the version in the kotlin file.
 
 Run `buildscripts/docker-build.sh`
 
-Extract the `classes.jar` from the generated aar and copy/paste it into android/aar
+Run `buildscripts/prep-reposlite.sh VERSION`
+
+Copy the versioned aar and pom to android/lib
 
 Update the version in gradle.build
 
