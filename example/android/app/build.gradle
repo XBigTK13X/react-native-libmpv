@@ -109,10 +109,6 @@ android {
 }
 
 repositories {
-  maven {
-    name "reposlite"
-    url "https://reposlite.9914.us/repository/main/"
-  }
   mavenCentral()
   google()
 }
