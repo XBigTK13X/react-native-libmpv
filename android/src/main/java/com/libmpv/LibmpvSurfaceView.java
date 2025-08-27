@@ -5,7 +5,6 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import androidx.annotation.NonNull;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -23,6 +22,9 @@ import dev.jdtech.mpv.MPVLib;
 import java.util.Map;
 
 public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Callback, MPVLib.LogObserver, MPVLib.EventObserver {
+
+    public static final String HWDEC = "mediacodec-copy";
+    public static final String HWCODECS = "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1";
 
     private boolean _isSurfaceCreated;
     private LibmpvWrapper _mpv;
@@ -94,8 +96,10 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
         _mpv.setOptionString("profile", "fast");
         _mpv.setOptionString("vo", "gpu-next");
         if (_useHardwareDecoder) {
-            _mpv.setOptionString("hwdec", "mediacodec,mediacodec-copy,no");
-            _mpv.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
+            // Note that mediacodec-copy works great on Android/TV
+            // mediacodec crashes to a purple video frame immediately
+            _mpv.setOptionString("hwdec", HWDEC);
+            _mpv.setOptionString("hwdec-codecs", HWCODECS);
         } else {
             _mpv.setOptionString("hwdec", "no");
         }
@@ -159,8 +163,8 @@ public class LibmpvSurfaceView extends SurfaceView implements SurfaceHolder.Call
     public void setHardwareDecoder(boolean useHardware) {
         _useHardwareDecoder = useHardware;
         if (_useHardwareDecoder) {
-            _mpv.setOptionString("hwdec", "mediacodec,mediacodec-copy");
-            _mpv.setOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1");
+            _mpv.setOptionString("hwdec", HWDEC);
+            _mpv.setOptionString("hwdec-codecs", HWCODECS);
         } else {
             _mpv.setOptionString("hwdec", "no");
         }
